@@ -1,0 +1,98 @@
+[
+  {
+    "command": "node scripts/audit-phase-2c-mocked.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.95,
+    "log": "qa-evidence/audit-phase-2c-mocked.log"
+  },
+  {
+    "command": "node scripts/check-phase-3a-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.85,
+    "log": "qa-evidence/check-phase-3a-isolated.log"
+  },
+  {
+    "command": "node scripts/check-phase-3b-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.84,
+    "log": "qa-evidence/check-phase-3b-isolated.log"
+  },
+  {
+    "command": "node scripts/check-phase4f-syntax.cjs",
+    "exit_code": 0,
+    "duration_seconds": 4.6,
+    "log": "qa-evidence/check-phase4f-syntax.log"
+  },
+  {
+    "command": "node scripts/verify-phase3c-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.85,
+    "log": "qa-evidence/verify-phase3c-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase3e-isolated.cjs",
+    "exit_code": 1,
+    "duration_seconds": 0.76,
+    "log": "qa-evidence/verify-phase3e-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase4a-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 1.05,
+    "log": "qa-evidence/verify-phase4a-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase4b-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 1.33,
+    "log": "qa-evidence/verify-phase4b-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase4c-isolated.cjs",
+    "exit_code": 1,
+    "duration_seconds": 0.15,
+    "log": "qa-evidence/verify-phase4c-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase4d-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.84,
+    "log": "qa-evidence/verify-phase4d-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase4e-isolated.cjs",
+    "exit_code": 1,
+    "duration_seconds": 1.19,
+    "log": "qa-evidence/verify-phase4e-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase4f-isolated.cjs",
+    "exit_code": 1,
+    "duration_seconds": 0.91,
+    "log": "qa-evidence/verify-phase4f-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase5a-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.69,
+    "log": "qa-evidence/verify-phase5a-isolated.log"
+  },
+  {
+    "command": "node scripts/verify-phase5b-integration.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.79,
+    "log": "qa-evidence/verify-phase5b-integration.log"
+  },
+  {
+    "command": "node scripts/verify-phase5c-failure-paths.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.95,
+    "log": "qa-evidence/verify-phase5c-failure-paths.log"
+  },
+  {
+    "command": "node scripts/verify-phase5d-isolated.cjs",
+    "exit_code": 0,
+    "duration_seconds": 0.86,
+    "log": "qa-evidence/verify-phase5d-isolated.log"
+  }
+]

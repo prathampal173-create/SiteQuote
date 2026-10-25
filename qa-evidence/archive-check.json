@@ -1,0 +1,11 @@
+{
+  "zip": "SITEQUOTE_FULL_QA_VERIFIED_PROJECT.zip",
+  "crc_validation": "PASS",
+  "packaged_files": 477,
+  "baseline_paths_preserved": 308,
+  "historical_migration_hashes_verified": 19,
+  "known_credential_value_scan": "PASS",
+  "env_and_dependency_cache_excluded": true,
+  "file_bytes_equal_workspace": "PASS; checked for every packaged file, then rechecked after adding this record",
+  "note": "No native acceptance implied by archive integrity or requested filename"
+}

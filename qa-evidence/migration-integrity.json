@@ -1,0 +1,21 @@
+{
+  "supabase/migrations/20261022000000_foundation_tables.sql": true,
+  "supabase/migrations/20261022010000_foundation_rls.sql": true,
+  "supabase/migrations/20261022020000_private_project_photos.sql": true,
+  "supabase/migrations/20261022030000_lead_manual_activities.sql": true,
+  "supabase/migrations/20261022040000_project_edit_integrity.sql": true,
+  "supabase/migrations/20261022050000_project_tasks.sql": true,
+  "supabase/migrations/20261022060000_project_decisions.sql": true,
+  "supabase/migrations/20261023000000_phase_2b_photo_metadata.sql": true,
+  "supabase/migrations/20261023010000_phase_2c_photo_deletion.sql": true,
+  "supabase/migrations/20261023020000_phase_3a_project_charges.sql": true,
+  "supabase/migrations/20261023030000_phase_3b_unsent_snapshot.sql": true,
+  "supabase/migrations/20261023040000_phase_3c_prepared_quotes.sql": true,
+  "supabase/migrations/20261023050000_phase_3d_explicit_sent.sql": true,
+  "supabase/migrations/20261023060000_phase_3e_quote_decisions.sql": true,
+  "supabase/migrations/20261023070000_phase_4a_reminders.sql": true,
+  "supabase/migrations/20261023080000_phase_4b_reminder_history.sql": true,
+  "supabase/migrations/20261023090000_phase_4d_site_visit_stage.sql": true,
+  "supabase/migrations/20261023100000_phase_4f_sent_followup.sql": true,
+  "supabase/migrations/20261023110000_phase_5d_sent_matching_precedence.sql": true
+}

@@ -1,0 +1,29 @@
+{
+  "archive": "SITEQUOTE_PHASE_5D_COMPLETE.zip",
+  "archive_sha256": "e60ae89ac1fd78611841324ce513779bde48a340f5f5908cefac9e311c5df343",
+  "entries": 353,
+  "compared": 308,
+  "mismatches": [],
+  "missing": [],
+  "historical_migrations": {
+    "supabase/migrations/20261022000000_foundation_tables.sql": "6c11bc3a4720c4f5f6a2602f0c9fb3e0730f6efb0fb19bb4c7924b3f81356e36",
+    "supabase/migrations/20261022010000_foundation_rls.sql": "05fb8c80d13e7111245762e0f96c3cfd7a6db761f86f3c77c52a6862e12aa1ec",
+    "supabase/migrations/20261022020000_private_project_photos.sql": "9b21bc3a03166d40f6cd7dbe21d92e652576133c9c6d645cca4275e9e0aacd18",
+    "supabase/migrations/20261022030000_lead_manual_activities.sql": "708b80049ab08b4705855f64a10e6be9c29ca6d67da1fff7169e05c916031f0b",
+    "supabase/migrations/20261022040000_project_edit_integrity.sql": "7e147b8e48aca6542cb7e85feb43e0e24e4373037afcf98765d8cccd341021be",
+    "supabase/migrations/20261022050000_project_tasks.sql": "ed7f815c4b6332cd73b4e354e2d9bb9b92789255275ed96dbcc66516a9fee905",
+    "supabase/migrations/20261022060000_project_decisions.sql": "6dc6049c9e2ed7ea267a8ce677e204e9b42fc0665c8f8c9f502970725a507bc7",
+    "supabase/migrations/20261023000000_phase_2b_photo_metadata.sql": "12e3753928943aa40d711d18b19862e633a51957ee8d286141020a7779bd7259",
+    "supabase/migrations/20261023010000_phase_2c_photo_deletion.sql": "9f5186b137ab47c6ca5716b2e19a5df73ea3a39edcb00ce78baeca935b010df4",
+    "supabase/migrations/20261023020000_phase_3a_project_charges.sql": "2cb03841a54cefd6c97ddcf8d3ca3a54f37b7c9fe867320ca9d04177b5242589",
+    "supabase/migrations/20261023030000_phase_3b_unsent_snapshot.sql": "44eaae47e8dc7dbde76dc8a14a514792a19dd29534243340b7b96c9a5f4d4843",
+    "supabase/migrations/20261023040000_phase_3c_prepared_quotes.sql": "94ceab57ab3611c20e54f68d0ca451b138a835fa7b0969f275f5715de2ffd132",
+    "supabase/migrations/20261023050000_phase_3d_explicit_sent.sql": "e1ff7c75724996be285eb17e1de2f2d63af1c9474ccadc5fa4459ca0403b5448",
+    "supabase/migrations/20261023060000_phase_3e_quote_decisions.sql": "637ded1067ba0bdbc1e304e96e7442f0d1008f905ebd0f2c8b5a57716f3d900b",
+    "supabase/migrations/20261023070000_phase_4a_reminders.sql": "cc20f406181ace674d1fff0cd97454d8622fa832864240cd9dad9a5ebd9393ca",
+    "supabase/migrations/20261023080000_phase_4b_reminder_history.sql": "352399fd9df23fbb3d53208e70fe8bc15eee78a22cc0b1a88e913579928febb5",
+    "supabase/migrations/20261023090000_phase_4d_site_visit_stage.sql": "9cba152b07f93ea58d60de84d90e7b0b32229342a27269aa96b1bf3e9b77e224",
+    "supabase/migrations/20261023100000_phase_4f_sent_followup.sql": "f6cb6fd0379089169edeb339ca33a8ca9f1ad9b34c3e8bab87d248c11cfbb7eb",
+    "supabase/migrations/20261023110000_phase_5d_sent_matching_precedence.sql": "3fe754115cd830066ecf0c5dc6cd143a859cd25efdb88f0e69b4b90f37829def"
+  }
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "script": "scripts/audit-phase-2c-mocked.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/check-phase-3a-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/check-phase-3b-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/check-phase4f-syntax.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase3c-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase3e-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase4a-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase4b-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase4c-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase4d-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase4e-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase4f-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase5a-isolated.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase5b-integration.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase5c-failure-paths.cjs",
+    "exit_code": 0
+  },
+  {
+    "script": "scripts/verify-phase5d-isolated.cjs",
+    "exit_code": 0
+  }
+]

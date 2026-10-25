@@ -1,0 +1,12 @@
+# Local Supabase CLI project identity. Other settings use CLI defaults.
+project_id = "sitequote"
+
+# Local acceptance uses the same six-digit confirmation flow as the app.
+# Supabase's local Mailpit captures these messages; no external inbox is used.
+[auth.email]
+enable_confirmations = true
+otp_length = 6
+
+[auth.email.template.confirmation]
+subject = "Confirm your SiteQuote account"
+content_path = "./docs/supabase-confirm-signup.html"

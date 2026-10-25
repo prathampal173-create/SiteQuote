@@ -1,0 +1,1530 @@
+{
+  "started": "2026-10-24T06:28:15.576Z",
+  "finished": "2026-10-24T06:28:31.224Z",
+  "platform": "Node → local GoTrue/PostgREST/Storage",
+  "limitations": "No native device. Clock injection explicitly identified. No external email delivery.",
+  "records": [
+    {
+      "id": "AUTH-A",
+      "area": "5B",
+      "name": "Account A: signup, Mailpit OTP verification, separate password login",
+      "status": "PASS",
+      "actual": "Unconfirmed signup had no session; incorrect/replayed OTP denied; local email token verified; real JWT login succeeded.",
+      "duration_ms": 1519
+    },
+    {
+      "id": "AUTH-B",
+      "area": "5B",
+      "name": "Account B: signup, Mailpit OTP verification, separate password login",
+      "status": "PASS",
+      "actual": "Unconfirmed signup had no session; incorrect/replayed OTP denied; local email token verified; real JWT login succeeded.",
+      "duration_ms": 341
+    },
+    {
+      "id": "DATA-01",
+      "area": "5B",
+      "name": "Create three customers, four independent projects and exact estimate via authenticated API",
+      "status": "PASS",
+      "actual": "3 leads, 4 distinct projects; 300000 task cents + 15000 charge cents; tax_bps 800.",
+      "duration_ms": 2058
+    },
+    {
+      "id": "QUOTE-01",
+      "area": "3A–3E",
+      "name": "Exact frozen $3402, first Prepared and same-request retries",
+      "status": "PASS",
+      "actual": {
+        "total_minor": 340200,
+        "tax_minor": 25200,
+        "version": 1,
+        "id": "2232302f-4670-4307-8979-196e46081ca2"
+      },
+      "duration_ms": 410
+    },
+    {
+      "id": "QUOTE-02",
+      "area": "5D",
+      "name": "A → B → A reuses original immutable version and issue time",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 708
+    },
+    {
+      "id": "QUOTE-03",
+      "area": "5D",
+      "name": "Out-of-order Sent; matching older Sent reuse; parallel explicit Sent idempotency",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 450
+    },
+    {
+      "id": "QUOTE-04",
+      "area": "5D",
+      "name": "Profile edits change working fingerprint but leave frozen quote intact",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 119
+    },
+    {
+      "id": "QUOTE-05",
+      "area": "3A–3E",
+      "name": "Accept older Sent quote; enforce Won locks; sibling independence; Reopen preserves history",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 206
+    },
+    {
+      "id": "CONCUR-01",
+      "area": "5D",
+      "name": "Parallel Prepare requests serialize behind a real PostgreSQL row lock",
+      "status": "PASS",
+      "actual": {
+        "observedLockWaiters": 2,
+        "quote_id": "b79b137d-09df-4414-81e9-cedeacd6a1bc",
+        "version": 4
+      },
+      "duration_ms": 1108
+    },
+    {
+      "id": "REM-01",
+      "area": "4A–4F",
+      "name": "Site visit concurrent completion has one event and one stage advancement",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 49
+    },
+    {
+      "id": "REM-02",
+      "area": "5D",
+      "name": "Retry after manual stage correction does not overwrite stage; reopen and recomplete are new events",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 111
+    },
+    {
+      "id": "RECOVER-01",
+      "area": "5C",
+      "name": "Lost reminder INSERT response: transport consumes committed response then throws; retry finds one row",
+      "status": "PASS",
+      "actual": "Real insert committed; fetch threw after consuming response; retry unique violation; authenticated request-key read found exactly one row. App recovery algorithm separately Jest-tested.",
+      "duration_ms": 81
+    },
+    {
+      "id": "PHOTO-01",
+      "area": "2A–2C",
+      "name": "Real private JPEG objects and metadata remain project/task specific",
+      "status": "PASS",
+      "actual": "Five private objects uploaded via Storage API; distinct project/task metadata; authenticated download and signed URL fetch succeed. Native normalization not exercised.",
+      "duration_ms": 1679
+    },
+    {
+      "id": "RLS-business_profiles",
+      "area": "security",
+      "name": "business_profiles: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "RLS zero rows"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 133
+    },
+    {
+      "id": "RLS-leads",
+      "area": "security",
+      "name": "leads: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "RLS zero rows"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 93
+    },
+    {
+      "id": "RLS-projects",
+      "area": "security",
+      "name": "projects: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "RLS zero rows"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 154
+    },
+    {
+      "id": "RLS-project_tasks",
+      "area": "security",
+      "name": "project_tasks: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "RLS zero rows"
+          },
+          "delete": {
+            "code": "RLS zero rows"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 167
+    },
+    {
+      "id": "RLS-project_additional_charges",
+      "area": "security",
+      "name": "project_additional_charges: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "RLS zero rows"
+          },
+          "delete": {
+            "code": "RLS zero rows"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 123
+    },
+    {
+      "id": "RLS-quotes",
+      "area": "security",
+      "name": "quotes: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 99
+    },
+    {
+      "id": "RLS-reminders",
+      "area": "security",
+      "name": "reminders: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "RLS zero rows"
+          },
+          "delete": {
+            "code": "RLS zero rows"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 62
+    },
+    {
+      "id": "RLS-project_photos",
+      "area": "security",
+      "name": "project_photos: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "RLS zero rows"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 53
+    },
+    {
+      "id": "RLS-activities",
+      "area": "security",
+      "name": "activities: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 47
+    },
+    {
+      "id": "RLS-reminder_completion_events",
+      "area": "security",
+      "name": "reminder_completion_events: owner read; B and anonymous SELECT/UPDATE/DELETE denied",
+      "status": "PASS",
+      "actual": {
+        "B": {
+          "read": {
+            "code": "RLS zero rows"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        },
+        "anonymous": {
+          "read": {
+            "code": "42501"
+          },
+          "update": {
+            "code": "42501"
+          },
+          "delete": {
+            "code": "42501"
+          }
+        }
+      },
+      "duration_ms": 55
+    },
+    {
+      "id": "RLS-inserts",
+      "area": "security",
+      "name": "Forged cross-owner and mismatched relationship INSERTs denied",
+      "status": "PASS",
+      "actual": "8 forged inserts rejected",
+      "duration_ms": 56
+    },
+    {
+      "id": "RLS-rpcs",
+      "area": "security",
+      "name": "Foreign and anonymous quote/project RPC authorization",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 81
+    },
+    {
+      "id": "RLS-immutable",
+      "area": "security",
+      "name": "Owner cannot mutate financial/history snapshots or internal request ledger",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 78
+    },
+    {
+      "id": "STORAGE-01",
+      "area": "security",
+      "name": "Known private object path grants neither B nor anonymous access",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 265
+    },
+    {
+      "id": "PHOTO-02",
+      "area": "2A–2C",
+      "name": "Active-object delete guard; guarded deleting state and repeat cleanup",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 293
+    },
+    {
+      "id": "DASH-01",
+      "area": "5A",
+      "name": "Real exact authenticated counts and current statuses",
+      "status": "PASS",
+      "actual": {
+        "leads": 3,
+        "quoteSent": 0,
+        "won": 1,
+        "overdue": 0
+      },
+      "duration_ms": 46
+    },
+    {
+      "id": "MONEY-01",
+      "area": "3A–3E",
+      "name": "Tax boundaries, separate charge CRUD and project independence",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 66
+    },
+    {
+      "id": "REM-03",
+      "area": "4A–4F",
+      "name": "Stale edit conflict; stored UTC; intentional deletion cascades history per existing privacy contract",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 42
+    },
+    {
+      "id": "DASH-02",
+      "area": "5A",
+      "name": "Exact HEAD count exceeds server row cap; future/open cutoff and sibling status filters",
+      "status": "PASS",
+      "actual": {
+        "headCount": 1005,
+        "defaultPageLength": 1000,
+        "controlledFutureCutoffCount": 1005
+      },
+      "duration_ms": 248
+    },
+    {
+      "id": "PHOTO-03",
+      "area": "2A–2C",
+      "name": "Task with photos cannot disappear before guarded cleanup; siblings preserved",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 138
+    },
+    {
+      "id": "RECOVER-02",
+      "area": "5C",
+      "name": "Real committed Sent response dropped; retry returns original transition and one activity",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 50
+    },
+    {
+      "id": "DASH-03",
+      "area": "5A",
+      "name": "Exact requested six-project Dashboard fixture produces 3 / 2 / 2 / 4",
+      "status": "PASS",
+      "actual": {
+        "totalLeads": 3,
+        "quoteSentProjects": 2,
+        "wonProjects": 2,
+        "overdueReminders": 4
+      },
+      "duration_ms": 4095
+    },
+    {
+      "id": "ORPHAN-01",
+      "area": "2A–2C",
+      "name": "Cross-installation pending upload survives other installation cleanup at >24h (controlled clock)",
+      "status": "FAIL",
+      "actual": "SQ-QA-009: real pending Storage object removed by another session; controlled +25h cleanup clock, no native device claim",
+      "duration_ms": 292
+    },
+    {
+      "id": "AUTH-logout",
+      "area": "5C",
+      "name": "Sign-out clears local session and revoked refresh token cannot establish another session",
+      "status": "PASS",
+      "actual": "Assertions passed",
+      "duration_ms": 15
+    }
+  ],
+  "state": {
+    "accounts": {
+      "A": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+      "B": "fcd6d36c-5d8f-49e3-af7a-0f8ef0dcd103"
+    },
+    "dataset": {
+      "leads": [
+        {
+          "id": "29448271-090c-4250-b42c-7cdea7162967",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "customer_name": "Demo Customer A",
+          "phone": "555",
+          "email": null,
+          "source": "Referral",
+          "notes": null,
+          "contact_stage": "new",
+          "created_at": "2026-10-24T06:28:18.497403+00:00",
+          "updated_at": "2026-10-24T06:28:18.497403+00:00"
+        },
+        {
+          "id": "3aefec57-4d6f-4414-8bd6-0a9a3267997a",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "customer_name": "Demo Customer B",
+          "phone": "555",
+          "email": null,
+          "source": "Referral",
+          "notes": null,
+          "contact_stage": "new",
+          "created_at": "2026-10-24T06:28:18.577062+00:00",
+          "updated_at": "2026-10-24T06:28:18.577062+00:00"
+        },
+        {
+          "id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "customer_name": "Demo Customer C",
+          "phone": "555",
+          "email": null,
+          "source": "Referral",
+          "notes": null,
+          "contact_stage": "new",
+          "created_at": "2026-10-24T06:28:18.633328+00:00",
+          "updated_at": "2026-10-24T06:28:18.633328+00:00"
+        }
+      ],
+      "projects": [
+        {
+          "id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+          "title": "Kitchen Renovation",
+          "site_address": null,
+          "notes": null,
+          "status": "draft",
+          "accepted_quote_id": null,
+          "tax_bps": 800,
+          "created_at": "2026-10-24T06:28:18.754775+00:00",
+          "updated_at": "2026-10-24T06:28:18.754775+00:00"
+        },
+        {
+          "id": "412d77b3-75dd-4ec9-a432-377b2d3d94a3",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+          "title": "Bathroom Renovation",
+          "site_address": null,
+          "notes": null,
+          "status": "draft",
+          "accepted_quote_id": null,
+          "tax_bps": 0,
+          "created_at": "2026-10-24T06:28:18.877518+00:00",
+          "updated_at": "2026-10-24T06:28:18.877518+00:00"
+        },
+        {
+          "id": "9847d9a0-b65f-4b53-869b-42cf8fcc068d",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "lead_id": "3aefec57-4d6f-4414-8bd6-0a9a3267997a",
+          "title": "Roofing Project",
+          "site_address": null,
+          "notes": null,
+          "status": "draft",
+          "accepted_quote_id": null,
+          "tax_bps": 0,
+          "created_at": "2026-10-24T06:28:18.958405+00:00",
+          "updated_at": "2026-10-24T06:28:18.958405+00:00"
+        },
+        {
+          "id": "b322ae68-e000-4431-a32b-a1aa2c936279",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+          "title": "Painting Project",
+          "site_address": null,
+          "notes": null,
+          "status": "draft",
+          "accepted_quote_id": null,
+          "tax_bps": 0,
+          "created_at": "2026-10-24T06:28:18.986896+00:00",
+          "updated_at": "2026-10-24T06:28:18.986896+00:00"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "category": "Kitchen Remodeling",
+          "title": "Kitchen cabinets",
+          "notes": "Public task note",
+          "amount_minor": 150000,
+          "sort_order": 0,
+          "created_at": "2026-10-24T06:28:19.056342+00:00",
+          "updated_at": "2026-10-24T06:28:19.056342+00:00"
+        },
+        {
+          "id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "category": "Kitchen Remodeling",
+          "title": "Cabinet hardware",
+          "notes": "Public task note",
+          "amount_minor": 50000,
+          "sort_order": 0,
+          "created_at": "2026-10-24T06:28:19.131654+00:00",
+          "updated_at": "2026-10-24T06:28:19.131654+00:00"
+        },
+        {
+          "id": "5e6e62fb-8e55-4d52-80e8-6931ad3cb5a5",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "category": "Kitchen Remodeling",
+          "title": "Countertop installation",
+          "notes": "Public task note",
+          "amount_minor": 100000,
+          "sort_order": 0,
+          "created_at": "2026-10-24T06:28:19.257426+00:00",
+          "updated_at": "2026-10-24T06:28:19.257426+00:00"
+        }
+      ],
+      "charges": [
+        {
+          "id": "178f25a7-ad63-4ab9-96a8-eeb7e89357f1",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "description": "Additional Charge 1",
+          "amount_minor": 10000,
+          "sort_order": 0,
+          "created_at": "2026-10-24T06:28:19.395662+00:00",
+          "updated_at": "2026-10-24T06:28:19.395662+00:00"
+        },
+        {
+          "id": "cb31e038-1015-43db-ac9f-f07db5d40152",
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "description": "Additional Charge 2",
+          "amount_minor": 5000,
+          "sort_order": 0,
+          "created_at": "2026-10-24T06:28:19.478408+00:00",
+          "updated_at": "2026-10-24T06:28:19.478408+00:00"
+        }
+      ],
+      "other": {
+        "id": "4f2cce9b-2183-4b3c-90ac-778714e8e2bd",
+        "user_id": "fcd6d36c-5d8f-49e3-af7a-0f8ef0dcd103",
+        "lead_id": "4435a7c8-c69a-414a-9eaa-f9c609206167",
+        "title": "Independent Project B",
+        "site_address": null,
+        "notes": null,
+        "status": "draft",
+        "accepted_quote_id": null,
+        "tax_bps": 0,
+        "created_at": "2026-10-24T06:28:19.01629+00:00",
+        "updated_at": "2026-10-24T06:28:19.01629+00:00"
+      }
+    },
+    "quoteA": {
+      "id": "2232302f-4670-4307-8979-196e46081ca2",
+      "status": "prepared",
+      "sent_at": null,
+      "tax_bps": 800,
+      "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+      "version": 1,
+      "snapshot": {
+        "totals": {
+          "taxBps": 800,
+          "taxMinor": 25200,
+          "finalMinor": 340200,
+          "pretaxMinor": 315000,
+          "chargesTotalMinor": 15000,
+          "taskSubtotalMinor": 300000
+        },
+        "content": {
+          "tasks": [
+            {
+              "id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+              "notes": "Public task note",
+              "title": "Kitchen cabinets",
+              "category": "Kitchen Remodeling",
+              "sort_order": 0,
+              "amount_minor": 150000
+            },
+            {
+              "id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+              "notes": "Public task note",
+              "title": "Cabinet hardware",
+              "category": "Kitchen Remodeling",
+              "sort_order": 0,
+              "amount_minor": 50000
+            },
+            {
+              "id": "5e6e62fb-8e55-4d52-80e8-6931ad3cb5a5",
+              "notes": "Public task note",
+              "title": "Countertop installation",
+              "category": "Kitchen Remodeling",
+              "sort_order": 0,
+              "amount_minor": 100000
+            }
+          ],
+          "status": "draft",
+          "charges": [
+            {
+              "id": "178f25a7-ad63-4ab9-96a8-eeb7e89357f1",
+              "sort_order": 0,
+              "description": "Additional Charge 1",
+              "amount_minor": 10000
+            },
+            {
+              "id": "cb31e038-1015-43db-ac9f-f07db5d40152",
+              "sort_order": 0,
+              "description": "Additional Charge 2",
+              "amount_minor": 5000
+            }
+          ],
+          "tax_bps": 800,
+          "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+          "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+          "site_address": null,
+          "business_name": "Original Builder",
+          "customer_name": "Demo Customer A",
+          "project_title": "Kitchen Renovation",
+          "business_phone": "555",
+          "customer_email": null,
+          "customer_phone": "555",
+          "business_address": null
+        }
+      },
+      "issued_at": "2026-10-24T06:28:19.588338+00:00",
+      "tax_minor": 25200,
+      "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+      "fingerprint": "603a0155a3a4c17ef06a3905e4e78a59b2591cbbcede1a7526577c67ecf658a0",
+      "request_key": "d3fc11e7-1a5d-4b57-aa99-83eded74e126",
+      "total_minor": 340200,
+      "charges_total_minor": 15000,
+      "tasks_subtotal_minor": 300000
+    },
+    "concurrency": {
+      "observedLockWaiters": 2,
+      "quote_id": "b79b137d-09df-4414-81e9-cedeacd6a1bc",
+      "version": 4
+    },
+    "photos": [
+      {
+        "id": "095dfb1a-09c7-48ee-b6ac-ac726f7e85e9",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "task_id": null,
+        "storage_path": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06/40173036-f91c-4f54-867b-5faaa1d44d75/095dfb1a-09c7-48ee-b6ac-ac726f7e85e9.jpg",
+        "source": "site_visit",
+        "state": "active",
+        "created_at": "2026-10-24T06:28:23.927833+00:00",
+        "updated_at": "2026-10-24T06:28:23.927833+00:00"
+      },
+      {
+        "id": "b5e1f382-5ade-42a4-8733-64df9bcb03d2",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "task_id": null,
+        "storage_path": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06/40173036-f91c-4f54-867b-5faaa1d44d75/b5e1f382-5ade-42a4-8733-64df9bcb03d2.jpg",
+        "source": "client_provided",
+        "state": "active",
+        "created_at": "2026-10-24T06:28:23.999118+00:00",
+        "updated_at": "2026-10-24T06:28:23.999118+00:00"
+      },
+      {
+        "id": "ae6ddc87-787e-40cc-b623-e14f90726662",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "412d77b3-75dd-4ec9-a432-377b2d3d94a3",
+        "task_id": null,
+        "storage_path": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06/412d77b3-75dd-4ec9-a432-377b2d3d94a3/ae6ddc87-787e-40cc-b623-e14f90726662.jpg",
+        "source": "site_visit",
+        "state": "active",
+        "created_at": "2026-10-24T06:28:24.029246+00:00",
+        "updated_at": "2026-10-24T06:28:24.029246+00:00"
+      },
+      {
+        "id": "46aafb8e-6f41-4ea7-8db4-e1adeaf73515",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "task_id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+        "storage_path": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06/40173036-f91c-4f54-867b-5faaa1d44d75/46aafb8e-6f41-4ea7-8db4-e1adeaf73515.jpg",
+        "source": "site_visit",
+        "state": "active",
+        "created_at": "2026-10-24T06:28:24.059345+00:00",
+        "updated_at": "2026-10-24T06:28:24.059345+00:00"
+      },
+      {
+        "id": "c9745531-fcfd-45cd-b76d-0dcd44ea7bba",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "task_id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+        "storage_path": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06/40173036-f91c-4f54-867b-5faaa1d44d75/c9745531-fcfd-45cd-b76d-0dcd44ea7bba.jpg",
+        "source": "client_provided",
+        "state": "active",
+        "created_at": "2026-10-24T06:28:24.080357+00:00",
+        "updated_at": "2026-10-24T06:28:24.080357+00:00"
+      }
+    ],
+    "dashboard": {
+      "leads": 3,
+      "quoteSent": 0,
+      "won": 1,
+      "overdue": 0
+    },
+    "exactDashboard": {
+      "totalLeads": 3,
+      "quoteSentProjects": 2,
+      "wonProjects": 2,
+      "overdueReminders": 4
+    },
+    "orphanRace": {
+      "path": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06/40173036-f91c-4f54-867b-5faaa1d44d75/b793bc56-7716-4e74-8c8b-340629580962.jpg",
+      "cleanupResult": {
+        "recovered": 0,
+        "orphaned": 1
+      },
+      "objectStillAvailable": false,
+      "clockAdvanceHours": 25,
+      "deviceA": "independent JWT client with pending identity",
+      "deviceB": "independent JWT client with empty local journal",
+      "nativeDevices": false
+    },
+    "finalProjects": [
+      {
+        "id": "412d77b3-75dd-4ec9-a432-377b2d3d94a3",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "title": "Bathroom Renovation",
+        "site_address": null,
+        "notes": null,
+        "status": "quote_sent",
+        "accepted_quote_id": null,
+        "tax_bps": 1234,
+        "created_at": "2026-10-24T06:28:18.877518+00:00",
+        "updated_at": "2026-10-24T06:28:26.841683+00:00"
+      },
+      {
+        "id": "552aeb5e-98fb-4dc6-8513-7896a696f91d",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "title": "Extension",
+        "site_address": null,
+        "notes": null,
+        "status": "won",
+        "accepted_quote_id": "e329b76c-007c-40e9-9f4e-7e774b8a1e66",
+        "tax_bps": 0,
+        "created_at": "2026-10-24T06:28:26.797904+00:00",
+        "updated_at": "2026-10-24T06:28:26.956421+00:00"
+      },
+      {
+        "id": "2af555a3-0be1-40bf-b56b-9343ea1e5e15",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "title": "Flooring",
+        "site_address": null,
+        "notes": null,
+        "status": "lost",
+        "accepted_quote_id": null,
+        "tax_bps": 0,
+        "created_at": "2026-10-24T06:28:26.803148+00:00",
+        "updated_at": "2026-10-24T06:28:26.971664+00:00"
+      },
+      {
+        "id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "title": "Kitchen Renovation",
+        "site_address": null,
+        "notes": "Internal notes allowed when closed",
+        "status": "quote_sent",
+        "accepted_quote_id": null,
+        "tax_bps": 800,
+        "created_at": "2026-10-24T06:28:18.754775+00:00",
+        "updated_at": "2026-10-24T06:28:30.864487+00:00"
+      },
+      {
+        "id": "b322ae68-e000-4431-a32b-a1aa2c936279",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "title": "Painting Project",
+        "site_address": null,
+        "notes": null,
+        "status": "draft",
+        "accepted_quote_id": null,
+        "tax_bps": 0,
+        "created_at": "2026-10-24T06:28:18.986896+00:00",
+        "updated_at": "2026-10-24T06:28:18.986896+00:00"
+      },
+      {
+        "id": "9847d9a0-b65f-4b53-869b-42cf8fcc068d",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "3aefec57-4d6f-4414-8bd6-0a9a3267997a",
+        "title": "Roofing Project",
+        "site_address": null,
+        "notes": null,
+        "status": "won",
+        "accepted_quote_id": "7475be70-2989-4436-a702-4ccbe7fb467c",
+        "tax_bps": 0,
+        "created_at": "2026-10-24T06:28:18.958405+00:00",
+        "updated_at": "2026-10-24T06:28:26.883676+00:00"
+      }
+    ],
+    "finalQuotes": [
+      {
+        "id": "2232302f-4670-4307-8979-196e46081ca2",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "version": 1,
+        "status": "sent",
+        "fingerprint": "603a0155a3a4c17ef06a3905e4e78a59b2591cbbcede1a7526577c67ecf658a0",
+        "snapshot": {
+          "totals": {
+            "taxBps": 800,
+            "taxMinor": 25200,
+            "finalMinor": 340200,
+            "pretaxMinor": 315000,
+            "chargesTotalMinor": 15000,
+            "taskSubtotalMinor": 300000
+          },
+          "content": {
+            "tasks": [
+              {
+                "id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+                "notes": "Public task note",
+                "title": "Kitchen cabinets",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 150000
+              },
+              {
+                "id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+                "notes": "Public task note",
+                "title": "Cabinet hardware",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 50000
+              },
+              {
+                "id": "5e6e62fb-8e55-4d52-80e8-6931ad3cb5a5",
+                "notes": "Public task note",
+                "title": "Countertop installation",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 100000
+              }
+            ],
+            "status": "draft",
+            "charges": [
+              {
+                "id": "178f25a7-ad63-4ab9-96a8-eeb7e89357f1",
+                "sort_order": 0,
+                "description": "Additional Charge 1",
+                "amount_minor": 10000
+              },
+              {
+                "id": "cb31e038-1015-43db-ac9f-f07db5d40152",
+                "sort_order": 0,
+                "description": "Additional Charge 2",
+                "amount_minor": 5000
+              }
+            ],
+            "tax_bps": 800,
+            "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+            "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+            "site_address": null,
+            "business_name": "Original Builder",
+            "customer_name": "Demo Customer A",
+            "project_title": "Kitchen Renovation",
+            "business_phone": "555",
+            "customer_email": null,
+            "customer_phone": "555",
+            "business_address": null
+          }
+        },
+        "request_key": "d3fc11e7-1a5d-4b57-aa99-83eded74e126",
+        "tasks_subtotal_minor": 300000,
+        "charges_total_minor": 15000,
+        "tax_bps": 800,
+        "tax_minor": 25200,
+        "total_minor": 340200,
+        "issued_at": "2026-10-24T06:28:19.588338+00:00",
+        "sent_at": "2026-10-24T06:28:20.732681+00:00"
+      },
+      {
+        "id": "250a27e2-e7bb-4141-8da6-68962a0c30b9",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "version": 2,
+        "status": "sent",
+        "fingerprint": "4d8d57c5d6d2ca26e472dbffdf70141e9a09b7d0212b8afa3eb210ccbd082af0",
+        "snapshot": {
+          "totals": {
+            "taxBps": 0,
+            "taxMinor": 0,
+            "finalMinor": 385000,
+            "pretaxMinor": 385000,
+            "chargesTotalMinor": 15000,
+            "taskSubtotalMinor": 370000
+          },
+          "content": {
+            "tasks": [
+              {
+                "id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+                "notes": "Public task note",
+                "title": "Kitchen cabinets",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 220000
+              },
+              {
+                "id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+                "notes": "Public task note",
+                "title": "Cabinet hardware",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 50000
+              },
+              {
+                "id": "5e6e62fb-8e55-4d52-80e8-6931ad3cb5a5",
+                "notes": "Public task note",
+                "title": "Countertop installation",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 100000
+              }
+            ],
+            "status": "draft",
+            "charges": [
+              {
+                "id": "178f25a7-ad63-4ab9-96a8-eeb7e89357f1",
+                "sort_order": 0,
+                "description": "Additional Charge 1",
+                "amount_minor": 10000
+              },
+              {
+                "id": "cb31e038-1015-43db-ac9f-f07db5d40152",
+                "sort_order": 0,
+                "description": "Additional Charge 2",
+                "amount_minor": 5000
+              }
+            ],
+            "tax_bps": 0,
+            "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+            "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+            "site_address": null,
+            "business_name": "Original Builder",
+            "customer_name": "Demo Customer A",
+            "project_title": "Kitchen Renovation",
+            "business_phone": "555",
+            "customer_email": null,
+            "customer_phone": "555",
+            "business_address": null
+          }
+        },
+        "request_key": "66eed7fa-024f-4e96-960e-64f9f50da019",
+        "tasks_subtotal_minor": 370000,
+        "charges_total_minor": 15000,
+        "tax_bps": 0,
+        "tax_minor": 0,
+        "total_minor": 385000,
+        "issued_at": "2026-10-24T06:28:20.316655+00:00",
+        "sent_at": "2026-10-24T06:28:20.693644+00:00"
+      },
+      {
+        "id": "00695693-456b-4a90-b7ee-907e63adb791",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "version": 3,
+        "status": "sent",
+        "fingerprint": "febda21587c59c47e96a94c6d6228003ca90d9e0db7195540b33b65ed3e65b8b",
+        "snapshot": {
+          "totals": {
+            "taxBps": 800,
+            "taxMinor": 25200,
+            "finalMinor": 340200,
+            "pretaxMinor": 315000,
+            "chargesTotalMinor": 15000,
+            "taskSubtotalMinor": 300000
+          },
+          "content": {
+            "tasks": [
+              {
+                "id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+                "notes": "Public task note",
+                "title": "Kitchen cabinets",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 150000
+              },
+              {
+                "id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+                "notes": "Public task note",
+                "title": "Cabinet hardware",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 50000
+              },
+              {
+                "id": "5e6e62fb-8e55-4d52-80e8-6931ad3cb5a5",
+                "notes": "Public task note",
+                "title": "Countertop installation",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 100000
+              }
+            ],
+            "status": "quote_sent",
+            "charges": [
+              {
+                "id": "178f25a7-ad63-4ab9-96a8-eeb7e89357f1",
+                "sort_order": 0,
+                "description": "Additional Charge 1",
+                "amount_minor": 10000
+              },
+              {
+                "id": "cb31e038-1015-43db-ac9f-f07db5d40152",
+                "sort_order": 0,
+                "description": "Additional Charge 2",
+                "amount_minor": 5000
+              }
+            ],
+            "tax_bps": 800,
+            "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+            "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+            "site_address": null,
+            "business_name": "Renamed Builder",
+            "customer_name": "Renamed Customer",
+            "project_title": "Kitchen Renovation",
+            "business_phone": "555",
+            "customer_email": null,
+            "customer_phone": "555",
+            "business_address": null
+          }
+        },
+        "request_key": "84997260-eb5c-4ae1-8798-ad152bbd0c61",
+        "tasks_subtotal_minor": 300000,
+        "charges_total_minor": 15000,
+        "tax_bps": 800,
+        "tax_minor": 25200,
+        "total_minor": 340200,
+        "issued_at": "2026-10-24T06:28:21.17116+00:00",
+        "sent_at": "2026-10-24T06:28:26.772519+00:00"
+      },
+      {
+        "id": "b79b137d-09df-4414-81e9-cedeacd6a1bc",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "version": 4,
+        "status": "prepared",
+        "fingerprint": "c73666a73a8be79d384e910cc5ce9d68a8733b55ef53b2610188083be0613285",
+        "snapshot": {
+          "totals": {
+            "taxBps": 800,
+            "taxMinor": 25600,
+            "finalMinor": 345600,
+            "pretaxMinor": 320000,
+            "chargesTotalMinor": 15000,
+            "taskSubtotalMinor": 305000
+          },
+          "content": {
+            "tasks": [
+              {
+                "id": "ff7684b5-468b-4dbd-b9ef-37304b3e125a",
+                "notes": "Public task note",
+                "title": "Kitchen cabinets",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 155000
+              },
+              {
+                "id": "0aefb6d3-0fef-469c-8e5f-fac9845ffd6c",
+                "notes": "Public task note",
+                "title": "Cabinet hardware",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 50000
+              },
+              {
+                "id": "5e6e62fb-8e55-4d52-80e8-6931ad3cb5a5",
+                "notes": "Public task note",
+                "title": "Countertop installation",
+                "category": "Kitchen Remodeling",
+                "sort_order": 0,
+                "amount_minor": 100000
+              }
+            ],
+            "status": "quote_sent",
+            "charges": [
+              {
+                "id": "178f25a7-ad63-4ab9-96a8-eeb7e89357f1",
+                "sort_order": 0,
+                "description": "Additional Charge 1",
+                "amount_minor": 10000
+              },
+              {
+                "id": "cb31e038-1015-43db-ac9f-f07db5d40152",
+                "sort_order": 0,
+                "description": "Additional Charge 2",
+                "amount_minor": 5000
+              }
+            ],
+            "tax_bps": 800,
+            "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+            "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+            "site_address": null,
+            "business_name": "Renamed Builder",
+            "customer_name": "Renamed Customer",
+            "project_title": "Kitchen Renovation",
+            "business_phone": "555",
+            "customer_email": null,
+            "customer_phone": "555",
+            "business_address": null
+          }
+        },
+        "request_key": "674b6c08-97eb-4d95-9edf-cee78acbd03e",
+        "tasks_subtotal_minor": 305000,
+        "charges_total_minor": 15000,
+        "tax_bps": 800,
+        "tax_minor": 25600,
+        "total_minor": 345600,
+        "issued_at": "2026-10-24T06:28:21.945404+00:00",
+        "sent_at": null
+      }
+    ],
+    "finalActivities": [
+      {
+        "id": "2fe92649-ea58-46cd-8bce-895ca0979d65",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "quote_marked_sent",
+        "detail": {
+          "version": 2,
+          "quote_id": "250a27e2-e7bb-4141-8da6-68962a0c30b9",
+          "to_status": "quote_sent",
+          "from_status": "draft",
+          "total_minor": 385000,
+          "project_title": "Kitchen Renovation"
+        },
+        "created_at": "2026-10-24T06:28:20.654927+00:00"
+      },
+      {
+        "id": "0c673a36-18c0-4bd0-bfca-ccc9a144af7d",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "quote_marked_sent",
+        "detail": {
+          "version": 1,
+          "quote_id": "2232302f-4670-4307-8979-196e46081ca2",
+          "to_status": "quote_sent",
+          "from_status": "quote_sent",
+          "total_minor": 340200,
+          "project_title": "Kitchen Renovation"
+        },
+        "created_at": "2026-10-24T06:28:20.730079+00:00"
+      },
+      {
+        "id": "9fadcb7b-abe9-4590-933b-2c4a2d2ffd36",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "project_marked_won",
+        "detail": {
+          "to_status": "won",
+          "from_status": "quote_sent",
+          "project_title": "Kitchen Renovation",
+          "accepted_quote_id": "2232302f-4670-4307-8979-196e46081ca2",
+          "accepted_quote_version": 1,
+          "accepted_quote_total_minor": 340200
+        },
+        "created_at": "2026-10-24T06:28:21.195717+00:00"
+      },
+      {
+        "id": "54d298b6-6146-406f-b593-f45a48962963",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "project_reopened",
+        "detail": {
+          "to_status": "quote_sent",
+          "from_status": "won",
+          "project_title": "Kitchen Renovation",
+          "previous_accepted_quote_id": "2232302f-4670-4307-8979-196e46081ca2"
+        },
+        "created_at": "2026-10-24T06:28:21.318375+00:00"
+      },
+      {
+        "id": "bb9c4684-4cff-45c6-8c9f-8c7651af0d64",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "project_marked_won",
+        "detail": {
+          "to_status": "won",
+          "from_status": "quote_sent",
+          "project_title": "Kitchen Renovation",
+          "accepted_quote_id": "2232302f-4670-4307-8979-196e46081ca2",
+          "accepted_quote_version": 1,
+          "accepted_quote_total_minor": 340200
+        },
+        "created_at": "2026-10-24T06:28:26.204933+00:00"
+      },
+      {
+        "id": "d3ec322c-60fb-46af-ac05-895506091094",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "project_reopened",
+        "detail": {
+          "to_status": "quote_sent",
+          "from_status": "won",
+          "project_title": "Kitchen Renovation",
+          "previous_accepted_quote_id": "2232302f-4670-4307-8979-196e46081ca2"
+        },
+        "created_at": "2026-10-24T06:28:26.24454+00:00"
+      },
+      {
+        "id": "e428af14-109c-48e6-8543-2e5b5dad519d",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "quote_marked_sent",
+        "detail": {
+          "version": 3,
+          "quote_id": "00695693-456b-4a90-b7ee-907e63adb791",
+          "to_status": "quote_sent",
+          "from_status": "quote_sent",
+          "total_minor": 340200,
+          "project_title": "Kitchen Renovation"
+        },
+        "created_at": "2026-10-24T06:28:26.770145+00:00"
+      },
+      {
+        "id": "001c43e7-8424-4035-b240-560c6a9e31a4",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "project_marked_won",
+        "detail": {
+          "to_status": "won",
+          "from_status": "quote_sent",
+          "project_title": "Kitchen Renovation",
+          "accepted_quote_id": "2232302f-4670-4307-8979-196e46081ca2",
+          "accepted_quote_version": 1,
+          "accepted_quote_total_minor": 340200
+        },
+        "created_at": "2026-10-24T06:28:30.835667+00:00"
+      },
+      {
+        "id": "fefb273c-bbc4-48c7-a9c8-ac00fd0fc666",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "29448271-090c-4250-b42c-7cdea7162967",
+        "project_id": "40173036-f91c-4f54-867b-5faaa1d44d75",
+        "type": "project_reopened",
+        "detail": {
+          "to_status": "quote_sent",
+          "from_status": "won",
+          "project_title": "Kitchen Renovation",
+          "previous_accepted_quote_id": "2232302f-4670-4307-8979-196e46081ca2"
+        },
+        "created_at": "2026-10-24T06:28:30.864487+00:00"
+      }
+    ],
+    "finalReminders": [
+      {
+        "id": "2ad4c681-c0e2-4fb9-8fe9-3c8106dca5c0",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "project_id": null,
+        "kind": "follow_up",
+        "title": "Lost response recovery",
+        "note": null,
+        "due_at": "2026-10-24T08:28:22.712+00:00",
+        "status": "open",
+        "completed_at": null,
+        "created_at": "2026-10-24T06:28:22.712773+00:00",
+        "updated_at": "2026-10-24T06:28:22.712773+00:00",
+        "client_request_id": "498c3793-6289-48ba-b996-9cd69284ee13"
+      },
+      {
+        "id": "c2f4dec2-68a0-4bcc-a370-3d8952fc71cf",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "project_id": null,
+        "kind": "other",
+        "title": "Dashboard due fixture 0",
+        "note": null,
+        "due_at": "2026-10-24T06:28:28.984+00:00",
+        "status": "open",
+        "completed_at": null,
+        "created_at": "2026-10-24T06:28:26.981519+00:00",
+        "updated_at": "2026-10-24T06:28:26.981519+00:00",
+        "client_request_id": null
+      },
+      {
+        "id": "9b0d5a9c-5c4d-493d-b0d6-19d90372d38c",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "project_id": null,
+        "kind": "other",
+        "title": "Dashboard due fixture 1",
+        "note": null,
+        "due_at": "2026-10-24T06:28:28.984+00:00",
+        "status": "open",
+        "completed_at": null,
+        "created_at": "2026-10-24T06:28:26.981519+00:00",
+        "updated_at": "2026-10-24T06:28:26.981519+00:00",
+        "client_request_id": null
+      },
+      {
+        "id": "c3074869-eecf-4a63-af8e-7c218fab8cac",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "project_id": null,
+        "kind": "other",
+        "title": "Dashboard due fixture 2",
+        "note": null,
+        "due_at": "2026-10-24T06:28:28.984+00:00",
+        "status": "open",
+        "completed_at": null,
+        "created_at": "2026-10-24T06:28:26.981519+00:00",
+        "updated_at": "2026-10-24T06:28:26.981519+00:00",
+        "client_request_id": null
+      },
+      {
+        "id": "35392cb7-cef0-4504-bdb0-f679137ca063",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "project_id": null,
+        "kind": "other",
+        "title": "Dashboard due fixture 3",
+        "note": null,
+        "due_at": "2026-10-24T06:28:28.984+00:00",
+        "status": "open",
+        "completed_at": null,
+        "created_at": "2026-10-24T06:28:26.981519+00:00",
+        "updated_at": "2026-10-24T06:28:26.981519+00:00",
+        "client_request_id": null
+      },
+      {
+        "id": "dec4119e-eed0-4fe4-a995-c30bc629efb4",
+        "user_id": "ffe56aeb-877a-46cb-9c41-3c1b66abbd06",
+        "lead_id": "257fe0aa-65b3-4c5b-ab61-a77aa865c64b",
+        "project_id": null,
+        "kind": "other",
+        "title": "Dashboard due fixture 4",
+        "note": null,
+        "due_at": "2026-10-24T06:28:28.984+00:00",
+        "status": "completed",
+        "completed_at": "2026-10-24T06:28:26.9931+00:00",
+        "created_at": "2026-10-24T06:28:26.981519+00:00",
+        "updated_at": "2026-10-24T06:28:26.990137+00:00",
+        "client_request_id": null
+      }
+    ]
+  }
+}

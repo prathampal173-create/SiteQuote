@@ -1,0 +1,110 @@
+[
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_0B2_foundation.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_0B2_foundation.log",
+    "duration_seconds": 0.48
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_0B3_isolation.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_0B3_isolation.log",
+    "duration_seconds": 0.16
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_0B4_storage.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_0B4_storage.log",
+    "duration_seconds": 0.12
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1A_manual_activities.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_1A_manual_activities.log",
+    "duration_seconds": 0.14
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1B_project_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_1B_project_security.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1C_tasks_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_1C_tasks_security.log",
+    "duration_seconds": 0.09
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1D_project_decisions_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_1D_project_decisions_security.log",
+    "duration_seconds": 0.11
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_2b_photo_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_2b_photo_security.log",
+    "duration_seconds": 0.08
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_2c_photo_deletion_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_2c_photo_deletion_security.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3a_estimate_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_3a_estimate_security.log",
+    "duration_seconds": 0.15
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3b_unsent_snapshot_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_3b_unsent_snapshot_security.log",
+    "duration_seconds": 0.13
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3c_prepared_quote_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_3c_prepared_quote_security.log",
+    "duration_seconds": 0.15
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3e_status_workflows_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_3e_status_workflows_security.log",
+    "duration_seconds": 0.17
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4a_reminders_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_4a_reminders_security.log",
+    "duration_seconds": 0.15
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4b_completion_history_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_4b_completion_history_security.log",
+    "duration_seconds": 0.12
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4d_site_visit_stage_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_4d_site_visit_stage_security.log",
+    "duration_seconds": 0.17
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4f_followup_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_4f_followup_security.log",
+    "duration_seconds": 0.14
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote-audit-replay-20ygr4sg psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_5d_advanced_versions_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/final-audit/fresh/phase_5d_advanced_versions_security.log",
+    "duration_seconds": 0.19
+  }
+]

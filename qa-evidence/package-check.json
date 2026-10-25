@@ -1,0 +1,17 @@
+{
+  "original_files": 308,
+  "retained_original_paths": 308,
+  "missing": [],
+  "changed_original_files": 52,
+  "historical_migrations_unchanged": true,
+  "known_credential_value_matches": [],
+  "excluded": [
+    ".env",
+    "node_modules",
+    ".expo",
+    "Supabase .temp/.branches",
+    "local status/keys outside workspace",
+    "native build outputs outside workspace"
+  ],
+  "scan_scope": "Exact configured local keys/secrets and .env values; not a general secret-scanner certification"
+}

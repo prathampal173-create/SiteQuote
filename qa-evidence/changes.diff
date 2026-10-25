@@ -1,0 +1,1074 @@
+--- baseline/supabase/config.toml
++++ supabase/config.toml
+@@ -1,2 +1,12 @@
+ # Local Supabase CLI project identity. Other settings use CLI defaults.
+ project_id = "sitequote"
++
++# Local acceptance uses the same six-digit confirmation flow as the app.
++# Supabase's local Mailpit captures these messages; no external inbox is used.
++[auth.email]
++enable_confirmations = true
++otp_length = 6
++
++[auth.email.template.confirmation]
++subject = "Confirm your SiteQuote account"
++content_path = "./docs/supabase-confirm-signup.html"
+--- baseline/supabase/tests/phase_1A_manual_activities.sql
++++ supabase/tests/phase_1A_manual_activities.sql
+@@ -35,9 +35,12 @@
+ select set_config('request.jwt.claims',
+ '{"sub":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"authenticated","is_anonymous":false}',true);
+ 
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.leads (id,user_id,customer_name,phone,source)
+ values ('cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+         'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','A Customer','555','Phone');
++set local role authenticated;
+ insert into public.activities (user_id,lead_id,type,detail)
+ values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+         'cccccccc-cccc-4ccc-8ccc-cccccccccccc','manual_note','{"note":"First call"}');
+--- baseline/supabase/tests/phase_3a_estimate_security.sql
++++ supabase/tests/phase_3a_estimate_security.sql
+@@ -54,7 +54,7 @@
+     insert into public.project_additional_charges (user_id,project_id,description,amount_minor) values
+      ('c2222222-2222-4222-8222-222222222222','c6666666-6666-4666-8666-666666666666','B charge',1);
+     raise exception 'A inserted as B';
+-  exception when insufficient_privilege then null;
++  exception when foreign_key_violation then null;
+   end;
+   begin
+     insert into public.project_additional_charges (user_id,project_id,description,amount_minor) values
+@@ -70,7 +70,7 @@
+   end;
+   begin
+     update public.projects set tax_bps=3001 where id='c5555555-5555-4555-8555-555555555555';
+-    raise exception 'Tax >30% was allowed';
++    raise exception 'Tax >30%% was allowed';
+   exception when check_violation then null;
+   end;
+   update public.projects set tax_bps=800 where id='c5555555-5555-4555-8555-555555555555';
+@@ -123,7 +123,8 @@
+     insert into public.project_additional_charges (user_id,project_id,description,amount_minor) values
+      ('c2222222-2222-4222-8222-222222222222','c6666666-6666-4666-8666-666666666666','anonymous',1);
+     raise exception 'Anonymous Auth account wrote charge';
+-  exception when insufficient_privilege then null;
++  -- The invoker trigger cannot see the parent under anonymous-user RLS.
++  exception when foreign_key_violation then null;
+   end;
+ end $anon$;
+ rollback;
+--- baseline/supabase/tests/phase_4d_site_visit_stage_security.sql
++++ supabase/tests/phase_4d_site_visit_stage_security.sql
+@@ -26,6 +26,8 @@
+ set local role authenticated;
+ select set_config('request.jwt.claim.sub','a4500000-0000-4000-8000-000000000001',true);
+ select set_config('request.jwt.claims','{"sub":"a4500000-0000-4000-8000-000000000001","role":"authenticated","is_anonymous":false}',true);
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.reminders(id,user_id,lead_id,project_id,kind,title,due_at) values
+  ('a4500000-0000-4000-8000-000000000041','a4500000-0000-4000-8000-000000000001','a4500000-0000-4000-8000-000000000011','a4500000-0000-4000-8000-000000000031','site_visit','Site visit',now()+interval '4 days'),
+  ('a4500000-0000-4000-8000-000000000042','a4500000-0000-4000-8000-000000000001','a4500000-0000-4000-8000-000000000012',null,'site_visit','Another visit',now()+interval '4 days'),
+@@ -33,6 +35,7 @@
+  ('a4500000-0000-4000-8000-000000000044','a4500000-0000-4000-8000-000000000001','a4500000-0000-4000-8000-000000000011',null,'follow_up','Follow-up',now()+interval '4 days'),
+  ('a4500000-0000-4000-8000-000000000045','a4500000-0000-4000-8000-000000000001','a4500000-0000-4000-8000-000000000012',null,'other','Other',now()+interval '4 days'),
+  ('a4500000-0000-4000-8000-000000000046','a4500000-0000-4000-8000-000000000001','a4500000-0000-4000-8000-000000000011',null,'site_visit','Second visit',now()+interval '4 days');
++set local role authenticated;
+ -- Explicit completion: all four writes commit in the same transaction.
+ update public.reminders set status='completed' where id='a4500000-0000-4000-8000-000000000041';
+ do $$ begin
+@@ -76,8 +79,11 @@
+   then raise exception 'Kind edit retroactively advanced lead'; end if;
+ end $$;
+ -- Coupling kind/lead reassignment with a completion should be rejected.
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.reminders(id,user_id,lead_id,kind,title,due_at) values
+  ('a4500000-0000-4000-8000-000000000047','a4500000-0000-4000-8000-000000000001','a4500000-0000-4000-8000-000000000011','other','Guarded',now()+interval '4 days');
++set local role authenticated;
+ do $$ begin
+   begin
+     update public.reminders set status='completed', kind='site_visit'
+--- baseline/supabase/tests/phase_4a_reminders_security.sql
++++ supabase/tests/phase_4a_reminders_security.sql
+@@ -29,12 +29,18 @@
+ set local role authenticated;
+ select set_config('request.jwt.claim.sub','a1100000-0000-4000-8000-000000000001',true);
+ select set_config('request.jwt.claims','{"sub":"a1100000-0000-4000-8000-000000000001","role":"authenticated","is_anonymous":false}',true);
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.reminders (id,user_id,lead_id,project_id,kind,title,due_at)
+  values ('a1100000-0000-4000-8000-000000000041','a1100000-0000-4000-8000-000000000001',
+  'a1100000-0000-4000-8000-000000000011','a1100000-0000-4000-8000-000000000031','site_visit','Walkthrough',now()+interval '3 days');
++set local role authenticated;
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.reminders (id,user_id,lead_id,kind,title,due_at)
+  values ('a1100000-0000-4000-8000-000000000042','a1100000-0000-4000-8000-000000000001',
+  'a1100000-0000-4000-8000-000000000012','other','Call',now()+interval '4 days');
++set local role authenticated;
+ update public.reminders set status='completed' where id='a1100000-0000-4000-8000-000000000041';
+ do $$ begin
+  if (select completed_at is null from public.reminders where id='a1100000-0000-4000-8000-000000000041') then
+--- baseline/supabase/tests/phase_4f_followup_security.sql
++++ supabase/tests/phase_4f_followup_security.sql
+@@ -20,9 +20,9 @@
+ insert into public.business_profiles(user_id,business_name) values
+  ('fa111111-1111-4111-8111-111111111111','Company A'),
+  ('fb222222-2222-4222-8222-222222222222','Company B');
+-insert into public.leads(id,user_id,customer_name,source) values
+- ('fc333333-3333-4333-8333-333333333333','fa111111-1111-4111-8111-111111111111','Customer A','Other'),
+- ('fd444444-4444-4444-8444-444444444444','fb222222-2222-4222-8222-222222222222','Customer B','Other');
++insert into public.leads(id,user_id,customer_name,phone,source) values
++ ('fc333333-3333-4333-8333-333333333333','fa111111-1111-4111-8111-111111111111','Customer A','555','Other'),
++ ('fd444444-4444-4444-8444-444444444444','fb222222-2222-4222-8222-222222222222','Customer B','555','Other');
+ insert into public.projects(id,user_id,lead_id,title,tax_bps) values
+  ('fe555555-5555-4555-8555-555555555555','fa111111-1111-4111-8111-111111111111','fc333333-3333-4333-8333-333333333333','Kitchen',800),
+  ('ff666666-6666-4666-8666-666666666666','fb222222-2222-4222-8222-222222222222','fd444444-4444-4444-8444-444444444444','Foreign',0);
+--- baseline/supabase/tests/phase_0B2_foundation.sql
++++ supabase/tests/phase_0B2_foundation.sql
+@@ -165,12 +165,12 @@
+   ) then
+     raise exception 'FAILED: future nullable quote reference missing';
+   end if;
+-  if exists (
++  if not exists (
+     select 1 from pg_constraint
+     where conrelid = 'public.projects'::regclass and contype = 'f'
+       and pg_get_constraintdef(oid) like '%accepted_quote_id%'
+   ) then
+-    raise exception 'FAILED: premature accepted_quote_id foreign key';
++    raise exception 'FAILED: Phase 3E accepted_quote_id foreign key missing';
+   end if;
+ 
+   -- Schema-only invariant. Phase 0B3 has its own grant and RLS tests;
+--- baseline/supabase/tests/phase_1C_tasks_security.sql
++++ supabase/tests/phase_1C_tasks_security.sql
+@@ -29,18 +29,27 @@
+ select set_config('request.jwt.claim.sub','cccccccc-cccc-4ccc-8ccc-ccccccccccc1',true);
+ select set_config('request.jwt.claims',
+  '{"sub":"cccccccc-cccc-4ccc-8ccc-ccccccccccc1","role":"authenticated","is_anonymous":false}',true);
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.leads(id,user_id,customer_name,phone,source)
+ values ('dddddddd-dddd-4ddd-8ddd-ddddddddddd1','cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
+  'Customer A','555','Referral');
++set local role authenticated;
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.projects(id,user_id,lead_id,title)
+ values ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1','cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
+  'dddddddd-dddd-4ddd-8ddd-ddddddddddd1','Kitchen');
++set local role authenticated;
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.project_tasks(id,user_id,project_id,category,title,notes,amount_minor)
+ values
+ ('ffffffff-ffff-4fff-8fff-fffffffffff1','cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
+  'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1','Kitchen Remodeling','Cabinets','Cabinets notes',150001),
+ ('ffffffff-ffff-4fff-8fff-fffffffffff2','cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
+  'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1','Kitchen Remodeling','Countertop','Other notes',0);
++set local role authenticated;
+ 
+ do $owned$
+ declare n integer;
+--- baseline/supabase/tests/phase_1B_project_security.sql
++++ supabase/tests/phase_1B_project_security.sql
+@@ -29,15 +29,21 @@
+ select set_config('request.jwt.claims',
+ '{"sub":"dddddddd-dddd-4ddd-8ddd-dddddddddddd","role":"authenticated","is_anonymous":false}',true);
+ 
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.leads (id,user_id,customer_name,phone,source)
+ values ('aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaab','dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+  'Customer A','555','Referral');
++set local role authenticated;
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.projects (id,user_id,lead_id,title,notes)
+ values
+  ('bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb01','dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+   'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaab','Kitchen','Kitchen notes'),
+  ('bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbb02','dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+   'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaab','Bathroom','Bathroom notes');
++set local role authenticated;
+ 
+ do $owner$
+ declare n int;
+--- baseline/supabase/tests/phase_4b_completion_history_security.sql
++++ supabase/tests/phase_4b_completion_history_security.sql
+@@ -27,8 +27,11 @@
+ set local role authenticated;
+ select set_config('request.jwt.claim.sub','a3300000-0000-4000-8000-000000000001',true);
+ select set_config('request.jwt.claims','{"sub":"a3300000-0000-4000-8000-000000000001","role":"authenticated","is_anonymous":false}',true);
++-- Deterministic IDs are privileged fixture setup; application grants stay unchanged.
++reset role;
+ insert into public.reminders (id,user_id,lead_id,project_id,kind,title,due_at) values
+  ('a3300000-0000-4000-8000-000000000041','a3300000-0000-4000-8000-000000000001','a3300000-0000-4000-8000-000000000011','a3300000-0000-4000-8000-000000000031','site_visit','Walk',now()+interval '5 days');
++set local role authenticated;
+ do $$ begin
+   if (select count(*) from public.reminder_completion_events) <> 0 then raise exception 'create incorrectly wrote history'; end if;
+ end $$;
+--- baseline/supabase/tests/phase_1D_project_decisions_security.sql
++++ supabase/tests/phase_1D_project_decisions_security.sql
+@@ -33,7 +33,7 @@
+      not (select relrowsecurity from pg_class where oid='public.activities'::regclass) or
+      has_function_privilege('anon','public.mark_project_lost(uuid)','EXECUTE') or
+      has_function_privilege('anon','public.reopen_project(uuid)','EXECUTE') or
+-     has_function_privilege('authenticated','public.mark_project_won(uuid,uuid)','EXECUTE') or
++     not has_function_privilege('authenticated','public.mark_project_won(uuid,uuid)','EXECUTE') or
+      not has_function_privilege('authenticated','public.mark_project_lost(uuid)','EXECUTE') or
+      not has_function_privilege('authenticated','public.reopen_project(uuid)','EXECUTE') or
+      has_column_privilege('authenticated','public.projects','status','UPDATE') or
+@@ -93,8 +93,8 @@
+   begin
+     perform public.mark_project_won('d5d5d5d5-5555-4555-8555-555555555555',
+       'd8d8d8d8-8888-4888-8888-888888888888');
+-    raise exception 'FAIL: premature Mark Won was executable';
+-  exception when insufficient_privilege then null;
++    raise exception 'FAIL: invalid Sent quote was accepted';
++  exception when check_violation then null;
+   end;
+   raise notice 'PASS: Lost, independent sibling, direct update denied, history append-only';
+ end $decide$;
+@@ -160,29 +160,28 @@
+   raise notice 'PASS: Reopen, valid state, immutable decision history';
+ end $reopen$;
+ 
+--- Simulate a previously Won project with an historical approved-version UUID,
+--- solely as a PRIVILEGED ROLLBACK TEST FIXTURE. No quote rows are fabricated.
+-reset role;
+-update public.projects set status='won', accepted_quote_id='d9d9d9d9-9999-4999-8999-999999999999'
+-  where id='d6d6d6d6-6666-4666-8666-666666666666';
+-set local role authenticated;
+-select set_config('request.jwt.claim.sub','d1d1d1d1-1111-4111-8111-111111111111',true);
+-select set_config('request.jwt.claims',
+- '{"sub":"d1d1d1d1-1111-4111-8111-111111111111","role":"authenticated","is_anonymous":false}',true);
++-- Final-schema regression: create a real immutable Sent quote before Won.
++insert into public.business_profiles(user_id,business_name) values
++ ('d1d1d1d1-1111-4111-8111-111111111111','Decision QA');
++insert into public.project_tasks(user_id,project_id,category,title,amount_minor) values
++ ('d1d1d1d1-1111-4111-8111-111111111111','d6d6d6d6-6666-4666-8666-666666666666','Painting','Paint',100);
+ do $historical$
+-declare changed public.projects;
+-  preserved uuid := 'd9d9d9d9-9999-4999-8999-999999999999';
++declare
++ p uuid := 'd6d6d6d6-6666-4666-8666-666666666666';
++ preserved uuid; changed public.projects;
+ begin
+-  changed := public.reopen_project('d6d6d6d6-6666-4666-8666-666666666666');
+-  if changed.status <> 'draft' or changed.accepted_quote_id is not null then
+-    raise exception 'FAIL: former approval remained active'; end if;
+-  if (select detail ->> 'previous_accepted_quote_id' from public.activities
+-      where project_id=changed.id and type='project_reopened') <> preserved::text then
+-    raise exception 'FAIL: earlier approved reference was not preserved'; end if;
+-  update public.projects set notes='Still editable' where id=changed.id;
+-  if (select count(*) from public.activities where project_id=changed.id) <> 1 then
+-    raise exception 'FAIL: edit removed decision history'; end if;
+-  raise notice 'PASS: Won recovery preserves prior approval ID without creating quote';
++ preserved := (public.prepare_quote(p, public.get_unsent_estimate_snapshot(p)->>'fingerprint',gen_random_uuid())->'quote'->>'id')::uuid;
++ perform public.confirm_quote_sent(preserved);
++ perform public.mark_project_won(p,preserved);
++ changed := public.reopen_project(p);
++ if changed.status <> 'quote_sent' or changed.accepted_quote_id is not null then
++   raise exception 'FAIL: former approval remained active or Sent status lost'; end if;
++ if (select detail->>'previous_accepted_quote_id' from public.activities
++     where project_id=p and type='project_reopened') <> preserved::text then
++   raise exception 'FAIL: earlier approved reference was not preserved'; end if;
++ update public.projects set notes='Still editable' where id=p;
++ if (select count(*) from public.activities where project_id=p and type='project_marked_won') <> 1 then
++   raise exception 'FAIL: edit removed decision history'; end if;
++ raise notice 'PASS: Won recovery preserves a real historical Sent approval';
+ end $historical$;
+-
+ rollback;
+--- baseline/src/lib/__tests__/photoProcessing.test.ts
++++ src/lib/__tests__/photoProcessing.test.ts
+@@ -37,6 +37,12 @@
+   expect(boundedDimensions(1500, 1000)).toEqual({ width: 1500, height: 1000 });
+   expect(boundedDimensions(600, 4000)).toEqual({ width: 307, height: 2048 });
+   expect(() => boundedDimensions(0, 10)).toThrow(PhotoProcessingError);
++});
++
++test.each([3400, 4032, 6016, 8000])('SQ-QA-005: %i-pixel images keep the exact bounded long edge', (longEdge) => {
++  expect(boundedDimensions(longEdge, 700).width).toBe(2048);
++  expect(boundedDimensions(700, longEdge).height).toBe(2048);
++  expect(boundedDimensions(longEdge, longEdge)).toEqual({ width: 2048, height: 2048 });
+ });
+ 
+ test('converted JPEG has checked signature, dimensions, size and direct project target', async () => {
+--- baseline/src/lib/photoProcessing.ts
++++ src/lib/photoProcessing.ts
+@@ -43,8 +43,10 @@
+   }
+   const longest = Math.max(width, height);
+   const scale = Math.min(1, edge / longest);
+-  return { width: Math.max(1, Math.floor(width * scale)),
+-    height: Math.max(1, Math.floor(height * scale)) };
++  // Keep the bounded long edge exact: multiplying by a floating ratio can
++  // turn 2048 into 2047.9999999999998 for otherwise ordinary photo sizes.
++  return { width: Math.max(1, width === longest ? Math.min(width, edge) : Math.floor(width * scale)),
++    height: Math.max(1, height === longest ? Math.min(height, edge) : Math.floor(height * scale)) };
+ }
+ 
+ export function assertPhotoAsset(asset: Pick<ImagePickerAsset, 'type' | 'uri' | 'mimeType'>): void {
+--- baseline/src/config/__tests__/env.test.ts
++++ src/config/__tests__/env.test.ts
+@@ -42,7 +42,9 @@
+   ])('rejects invalid or secret key classes without including input in errors', (key) => {
+     const result = validateBackendEnvironment({ ...valid, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key });
+     expect(result.status).toBe('invalid');
+-    if (result.status === 'invalid') expect(result.errors.join(' ')).not.toContain(key);
++    // The public key prefix is documentation, not a secret value.
++    if (result.status === 'invalid' && key !== 'sb_publishable_')
++      expect(result.errors.join(' ')).not.toContain(key);
+   });
+ 
+   it('accepts and trims a publishable-only configuration', () => {
+--- baseline/src/features/leads/__tests__/LeadScreens.test.tsx
++++ src/features/leads/__tests__/LeadScreens.test.tsx
+@@ -10,6 +10,7 @@
+ const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
+ let mockAccount = { accountId: 'account-a', accountScope: 1 };
+ jest.mock('expo-router', () => ({
++  useLocalSearchParams: () => ({}),
+   useRouter: () => mockRouter,
+   useFocusEffect: (cb: () => () => void) => require('react').useEffect(cb, [cb])
+ }));
+--- baseline/src/features/auth/__tests__/RootProtectedRoutes.test.tsx
++++ src/features/auth/__tests__/RootProtectedRoutes.test.tsx
+@@ -1,3 +1,6 @@
++// Route guard tests isolate lifecycle coordinators; their behavior has separate suites.
++jest.mock('../../notifications/NotificationTapCoordinator', () => ({ NotificationTapCoordinator: () => null }));
++jest.mock('../../notifications/NotificationLifecycleCoordinator', () => ({ NotificationLifecycleCoordinator: () => null }));
+ import { render, screen } from '@testing-library/react-native';
+ import RootLayout from '../../../../app/_layout';
+ import { useAuthFlow } from '../AuthFlowProvider';
+--- baseline/src/features/auth/__tests__/AuthFlowProvider.test.tsx
++++ src/features/auth/__tests__/AuthFlowProvider.test.tsx
+@@ -21,7 +21,7 @@
+ let storedSession: Record<string, unknown> | null;
+ const user = { id: 'user-a', email: 'a@example.com', email_confirmed_at: '2026-10-01T00:00:00Z', is_anonymous: false };
+ const session = { access_token: 'token-a', expires_at: 2000000000, user };
+-const proof = { user, session } as VerificationProof;
++const proof = { user, session } as unknown as VerificationProof;
+ 
+ function Harness() {
+   const flow = useAuthFlow();
+--- baseline/src/features/auth/__tests__/LogInScreen.test.tsx
++++ src/features/auth/__tests__/LogInScreen.test.tsx
+@@ -30,7 +30,7 @@
+ 
+ test('rejects bad email and short password before contacting Supabase', () => {
+   render(<LogInScreen />);
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   expect(screen.getByText('Enter a valid email address.')).toBeTruthy();
+   expect(screen.getByText('Password must be at least eight characters.')).toBeTruthy();
+   expect(signInWithPassword).not.toHaveBeenCalled();
+@@ -40,7 +40,7 @@
+   signInWithPassword.mockResolvedValue({ data: { session: { access_token: 'unit-test-only' } }, error: null });
+   render(<LogInScreen />);
+   fillForm();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)'));
+   expect(signInWithPassword).toHaveBeenCalledWith({ email: 'a@example.com', password: 'abcdefgh' });
+   expect(grantVerifiedLogin).toHaveBeenCalledWith(' A@Example.com ', 'unit-test-only');
+@@ -50,7 +50,7 @@
+   signInWithPassword.mockResolvedValue({ error: { code: 'invalid_credentials' }, data: {} });
+   render(<LogInScreen />);
+   fillForm();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   await screen.findByText(/Unable to sign in/);
+   expect(mockReplace).not.toHaveBeenCalledWith('/(tabs)');
+ });
+@@ -59,7 +59,7 @@
+   signInWithPassword.mockResolvedValue({ error: { code: 'email_not_confirmed' }, data: {} });
+   render(<LogInScreen />);
+   fillForm();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   await screen.findByText(/Email confirmation is required/);
+   fireEvent.press(screen.getByText('Verify email'));
+   expect(beginVerification).toHaveBeenCalledWith(' A@Example.com ', false);
+@@ -72,7 +72,7 @@
+   signInWithPassword.mockResolvedValue({ data: { session: { access_token: 'unit-test-only' } }, error: null });
+   render(<LogInScreen />);
+   fillForm();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   await screen.findByText(/could not be verified/);
+   expect(discardUntrustedSession).toHaveBeenCalled();
+   expect(mockReplace).not.toHaveBeenCalledWith('/(tabs)');
+@@ -83,10 +83,10 @@
+     .mockRejectedValueOnce(new Error('offline'));
+   render(<LogInScreen />);
+   fillForm();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   await screen.findByText(/Too many attempts/);
+   expect(screen.getByTestId('login-email').props.value).toBe(' A@Example.com ');
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   await screen.findByText(/Network unavailable/);
+   expect(signInWithPassword).toHaveBeenCalledTimes(2);
+ });
+@@ -96,7 +96,7 @@
+   signInWithPassword.mockImplementation(() => new Promise((resolve) => { complete = resolve; }));
+   render(<LogInScreen />);
+   fillForm();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   fireEvent.press(screen.getByText('Signing in…'));
+   expect(signInWithPassword).toHaveBeenCalledTimes(1);
+   complete({ error: { code: 'invalid_credentials' }, data: {} });
+@@ -108,6 +108,6 @@
+   jest.mocked(getSupabaseClient).mockReturnValue(null);
+   render(<LogInScreen />);
+   expect(screen.getByText(/Supabase is not configured/)).toBeTruthy();
+-  fireEvent.press(screen.getByText('Log In'));
++  fireEvent.press(screen.getByRole('button', { name: 'Log In' }));
+   expect(signInWithPassword).not.toHaveBeenCalled();
+ });
+--- baseline/src/features/settings/__tests__/businessProfile.test.ts
++++ src/features/settings/__tests__/businessProfile.test.ts
+@@ -13,8 +13,8 @@
+ const profile = { user_id: owner, business_name: 'Brickworks', phone: null, address: null };
+ const maybeSingle = jest.fn();
+ const single = jest.fn();
+-const eq = jest.fn(() => ({ maybeSingle, select }));
+-const select = jest.fn(() => ({ eq, single }));
++const eq: jest.Mock = jest.fn(() => ({ maybeSingle, select, eq }));
++const select: jest.Mock = jest.fn(() => ({ eq, single, maybeSingle }));
+ const insert = jest.fn(() => ({ select }));
+ const update = jest.fn(() => ({ eq }));
+ const from = jest.fn(() => ({ select, insert, update }));
+@@ -23,7 +23,12 @@
+ const mockValidate = jest.mocked(validateServerSession);
+ 
+ beforeEach(() => {
+-  jest.clearAllMocks();
++  jest.resetAllMocks();
++  eq.mockImplementation(() => ({ maybeSingle, select, eq }));
++  select.mockImplementation(() => ({ eq, single, maybeSingle }));
++  insert.mockImplementation(() => ({ select }));
++  update.mockImplementation(() => ({ eq }));
++  from.mockImplementation(() => ({ select, insert, update }));
+   mockClient.mockReturnValue(client as unknown as NonNullable<ReturnType<typeof getSupabaseClient>>);
+   mockValidate.mockResolvedValue({ userId: owner, accessToken: 'ignored-token', expiresAtMs: Date.now() + 60000 });
+   maybeSingle.mockResolvedValue({ data: profile, error: null });
+--- baseline/src/features/settings/__tests__/SettingsScreen.test.tsx
++++ src/features/settings/__tests__/SettingsScreen.test.tsx
+@@ -103,7 +103,7 @@
+   mockLoad.mockRejectedValueOnce(new Error('offline'));
+   render(<SettingsScreen />);
+   await screen.findByText(/Could not reach the business profile/);
+-  expect(screen.getByText('Save').parent?.props.accessibilityState?.disabled).toBe(true);
++  expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+   fireEvent.press(screen.getByText('Retry loading profile'));
+   await screen.findByDisplayValue('Business A');
+   expect(mockLoad).toHaveBeenCalledTimes(2);
+@@ -143,7 +143,7 @@
+   asAccount(null, 3);
+   render(<SettingsScreen />);
+   expect(mockLoad).not.toHaveBeenCalled();
+-  expect(screen.getByText('Save').parent?.props.accessibilityState?.disabled).toBe(true);
++  expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+ });
+ 
+ test('existing Phase 0D Sign Out still performs auth cleanup and disables repeat presses', async () => {
+--- baseline/src/features/photos/__tests__/photoQueue.test.ts
++++ src/features/photos/__tests__/photoQueue.test.ts
+@@ -20,7 +20,7 @@
+ beforeEach(() => {
+   jest.clearAllMocks(); memory.clear(); files.clear();
+   jest.mocked(Storage.getItem).mockImplementation(async (name) => memory.get(name) ?? null);
+-  jest.mocked(Storage.setItem).mockImplementation(async (name, value) => { memory.set(name, value); });
++  jest.mocked(Storage.setItem).mockImplementation(async (name, value) => { memory.set(name, typeof value === 'function' ? value(memory.get(name) ?? null) : value); });
+   jest.mocked(File).mockImplementation((...parts: any[]) => {
+     const uri = parts.map((part) => typeof part === 'string' ? part : '').join('');
+     return { uri, get exists() { return files.has(uri); },
+--- baseline/src/features/photos/__tests__/PhotoGallerySection.test.tsx
++++ src/features/photos/__tests__/PhotoGallerySection.test.tsx
+@@ -1,4 +1,5 @@
+ import React from 'react';
++import { Alert } from 'react-native';
+ import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+ import { PhotoGallerySection } from '../PhotoGallerySection';
+ import { deleteSavedPhoto, cleanupProjectPhotos, listSavedPhotos, signPhotoUrl } from '../photosApi';
+@@ -46,7 +47,7 @@
+ test('viewer signs fresh URL, navigates between saved photos, and closes explicitly', async () => {
+   render(<PhotoGallerySection {...props} />);
+   await waitFor(() => expect(screen.getAllByLabelText(/Open .* photo/)).toHaveLength(3));
+-  fireEvent.press(screen.getAllByLabelText(/Open .* photo/)[0]);
++  fireEvent.press(screen.getAllByLabelText(/Open .* photo/)[0]!);
+   await waitFor(() => expect(screen.getByText('Site visit · 1 of 3')).toBeTruthy());
+   fireEvent.press(screen.getByText('Next photo'));
+   await waitFor(() => expect(screen.getByText('Client-provided · 2 of 3')).toBeTruthy());
+@@ -64,11 +65,10 @@
+ });
+ 
+ test('confirmed gallery photo removal invokes owner-only deletion and refreshes records', async () => {
+-  const { Alert } = require('react-native');
+   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+   render(<PhotoGallerySection {...props} />);
+   await waitFor(() => expect(screen.getByText('Direct project photos (1)')).toBeTruthy());
+-  fireEvent.press(screen.getAllByLabelText(/Open .* photo/)[0]);
++  fireEvent.press(screen.getAllByLabelText(/Open .* photo/)[0]!);
+   await waitFor(() => expect(screen.getByText('Site visit · 1 of 3')).toBeTruthy());
+   fireEvent.press(screen.getByText('Delete photo'));
+   expect(alert).toHaveBeenCalled();
+--- baseline/src/features/photos/__tests__/photosApi.test.ts
++++ src/features/photos/__tests__/photosApi.test.ts
+@@ -36,7 +36,8 @@
+     arrayBuffer: async () => new Uint8Array([0xff, 0xd8, 0xff, 0x12]).buffer } as never));
+   query.maybeSingle.mockResolvedValue({ data: { id: project }, error: null });
+   query.single.mockResolvedValue({ data: saved, error: null });
+-  query.range.mockResolvedValue({ data: [saved], error: null });
++  query.range.mockReturnValue(query);
++  query.then = (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [saved], error: null }).then(resolve);
+   storage.upload.mockResolvedValue({ data: { path }, error: null });
+   storage.createSignedUrl.mockResolvedValue({ data: { signedUrl: 'https://private.example/signed' }, error: null });
+ });
+--- baseline/src/features/photos/photosApi.ts
++++ src/features/photos/photosApi.ts
+@@ -151,7 +151,7 @@
+ const PHOTO_COLUMNS = 'id,user_id,project_id,task_id,storage_path,source,state,created_at,updated_at';
+ const pathFor = (userId: string, projectId: string, id: string) => `${userId}/${projectId}/${id}.jpg`;
+ const ORPHAN_MIN_AGE_MS = 24 * 60 * 60 * 1000;
+-const oldEnoughForCleanup = (timestamp: string | undefined) => {
++const oldEnoughForCleanup = (timestamp: string | null | undefined) => {
+   const createdAt = Date.parse(timestamp ?? '');
+   return Number.isFinite(createdAt) && Date.now() - createdAt > ORPHAN_MIN_AGE_MS;
+ };
+--- baseline/src/features/projects/__tests__/ProjectScreens.test.tsx
++++ src/features/projects/__tests__/ProjectScreens.test.tsx
+@@ -11,6 +11,7 @@
+ const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
+ let mockAccount = { accountId: 'a', accountScope: 1 };
+ jest.mock('expo-router', () => ({
++  useLocalSearchParams: () => ({}),
+   useRouter: () => mockRouter,
+   useFocusEffect: (cb: () => () => void) => require('react').useEffect(cb, [cb])
+ }));
+@@ -123,7 +124,7 @@
+   render(<ProjectsScreen />);
+   await waitFor(() => expect(screen.getByText('Painting')).toBeTruthy());
+   for (const [status, title] of [['Draft', 'Kitchen Renovation'], ['Quote Sent', 'Painting'],
+-    ['Won', 'Bathroom Upgrade'], ['Lost', 'Floor']]) {
++    ['Won', 'Bathroom Upgrade'], ['Lost', 'Floor']] as const) {
+     fireEvent.press(screen.getByLabelText(`Project filter: ${status}`));
+     expect(screen.getByText(title)).toBeTruthy();
+     for (const other of rows.filter(({ project }) => project.title !== title)) {
+@@ -151,9 +152,9 @@
+   await waitFor(() => expect(mockList).toHaveBeenCalledTimes(1));
+   mockAccount = { accountId: 'b', accountScope: 2 };
+   ui.rerender(<ProjectsScreen />);
+-  await waitFor(() => expect(screen.getByText('B Customer')).toBeTruthy());
++  await waitFor(() => expect(screen.getByText(/B Customer/)).toBeTruthy());
+   finishA([{ project: kitchen, leadName: 'A Customer' }]);
+-  await waitFor(() => expect(screen.queryByText('A Customer')).toBeNull());
++  await waitFor(() => expect(screen.queryByText(/A Customer/)).toBeNull());
+ });
+ 
+ test('project card accessibility identifies correct status without quote amount', () => {
+--- baseline/src/features/projects/__tests__/quoteSentApi.test.ts
++++ src/features/projects/__tests__/quoteSentApi.test.ts
+@@ -11,7 +11,7 @@
+ const eq = jest.fn();
+ const client = { from: jest.fn(() => {
+   const filters: Record<string, unknown> = {};
+-  const query = { select: jest.fn(() => query),
++  const query: Record<'select' | 'eq' | 'order' | 'range', jest.Mock> = { select: jest.fn(() => query),
+     eq: jest.fn((col: string, value: unknown) => { eq(col, value); filters[col] = value; return query; }),
+     order: jest.fn(() => query),
+     range: jest.fn(async (start: number, end: number) => {
+--- baseline/src/features/projects/__tests__/projectsApi.test.ts
++++ src/features/projects/__tests__/projectsApi.test.ts
+@@ -44,7 +44,7 @@
+     const matched = rows().filter((r) => match(r as Record<string, unknown>));
+     return { data: mode === 'one' ? matched[0] ?? null : matched.slice(start, end + 1), error: null };
+   };
+-  const q = {
++  const q: Record<'select' | 'eq' | 'order' | 'range' | 'maybeSingle' | 'single' | 'insert' | 'update', jest.Mock> = {
+     select: jest.fn(() => q), eq: jest.fn((field: string, value: unknown) => { filters[field] = value; return q; }),
+     order: jest.fn(() => q), range: jest.fn((s: number, e: number) => { start = s; end = e; return result('many'); }),
+     insert: jest.fn((value: Record<string, unknown>) => { insertion = value; return q; }),
+--- baseline/src/features/projects/__tests__/ProjectDecisionControls.test.tsx
++++ src/features/projects/__tests__/ProjectDecisionControls.test.tsx
+@@ -1,6 +1,6 @@
+ import React from 'react';
+ import { Alert } from 'react-native';
+-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
++import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+ import { ProjectDecisionControls } from '../ProjectDecisionControls';
+ import { markProjectLost, markProjectWon, reopenProject } from '../projectDecisionsApi';
+ import type { Project } from '../projectModel';
+@@ -38,7 +38,7 @@
+   dialog.buttons?.[0]?.onPress?.();
+   expect(mockLost).not.toHaveBeenCalled();
+   fireEvent.press(screen.getByText('Mark Lost'));
+-  dialog.buttons?.[1]?.onPress?.();
++  act(() => { dialog.buttons?.[1]?.onPress?.(); });
+   await waitFor(() => expect(mockLost).toHaveBeenCalledWith('a', 'p1'));
+   expect(onChanged).toHaveBeenCalledTimes(1);
+ });
+@@ -49,13 +49,13 @@
+     .mockResolvedValueOnce({ ...project, status: 'lost' });
+   render(<ProjectDecisionControls project={project} accountId="a" accountScope={1} onChanged={onChanged} />);
+   fireEvent.press(screen.getByText('Mark Lost'));
+-  dialog.buttons?.[1]?.onPress?.();
++  act(() => { dialog.buttons?.[1]?.onPress?.(); });
+   fireEvent.press(screen.getByText('Saving decision…'));
+   expect(mockLost).toHaveBeenCalledTimes(1);
+   reject(new Error('offline'));
+   await waitFor(() => expect(screen.getByText(/Could not save the decision/)).toBeTruthy());
+   fireEvent.press(screen.getByText('Mark Lost'));
+-  dialog.buttons?.[1]?.onPress?.();
++  act(() => { dialog.buttons?.[1]?.onPress?.(); });
+   await waitFor(() => expect(mockLost).toHaveBeenCalledTimes(2));
+ });
+ 
+@@ -65,7 +65,7 @@
+   fireEvent.press(screen.getByText('Reopen Project'));
+   expect(Alert.alert).toHaveBeenCalledWith('Reopen project?', expect.stringContaining('permanent history'),
+     expect.any(Array), expect.any(Object));
+-  dialog.buttons?.[1]?.onPress?.();
++  act(() => { dialog.buttons?.[1]?.onPress?.(); });
+   await waitFor(() => expect(mockReopen).toHaveBeenCalledWith('a', 'p1'));
+ });
+ 
+@@ -91,7 +91,7 @@
+   expect(mockWon).not.toHaveBeenCalled();
+   expect(Alert.alert).toHaveBeenCalledWith('Mark project Won?', expect.stringContaining('$3,402.00'),
+     expect.any(Array), expect.any(Object));
+-  dialog.buttons?.[1]?.onPress?.();
++  act(() => { dialog.buttons?.[1]?.onPress?.(); });
+   await waitFor(() => expect(mockWon).toHaveBeenCalledWith('a','p1','sent-1'));
+ });
+ 
+--- baseline/src/features/estimates/__tests__/preparedQuotes.test.ts
++++ src/features/estimates/__tests__/preparedQuotes.test.ts
+@@ -44,7 +44,7 @@
+   expect(parsePrepareResult({result:'created',quote:make()}, A, P).quote.version).toBe(1);
+   expect(() => parsePrepareResult({result:'sent',quote:make()}, A, P)).toThrow();
+   expect(quoteReference(a)).toBe('SQ-C55555555555-v1');
+-  const changed = parsePreparedQuote({...make(), id:'q2', version:2, total_minor:340201,
++  const changed = parsePreparedQuote({...make(), id:'q2', version:2, fingerprint:'b'.repeat(64), total_minor:340201,
+     tasks_subtotal_minor:300001, tax_minor:25200,
+     snapshot:{content:{...content,tasks:[{...content.tasks[0],amount_minor:150001},...content.tasks.slice(1)]},
+       totals:{...totals,taskSubtotalMinor:300001,pretaxMinor:315001,finalMinor:340201}} },A,P);
+--- baseline/src/features/estimates/__tests__/phase5dAdvanced.test.ts
++++ src/features/estimates/__tests__/phase5dAdvanced.test.ts
+@@ -20,7 +20,7 @@
+ test('Phase 5D real exact-cent $3402 fixture with repeated task categories',()=>{
+  expect(totals).toMatchObject({taskSubtotalMinor:300000,chargesTotalMinor:15000,pretaxMinor:315000,
+   taxMinor:25200,finalMinor:340200,taxBps:800});
+- expect(content.tasks[0].category).toBe(content.tasks[1].category);
++ expect(content.tasks[0]!.category).toBe(content.tasks[1]!.category);
+ });
+ test('highest NUMBERED Sent drives summary despite out-of-order sent_at',()=>{
+  const v2={...raw,id:'b',version:2,total_minor:351000,sent_at:'2026-10-23T14:30:00Z'};
+@@ -53,7 +53,7 @@
+ test('version changes are derived from frozen snapshots',()=>{
+  const q=parsePreparedQuote(raw,owner,project);
+  const r={...q,version:2,fingerprint:'b'.repeat(64),total_minor:351000,
+-  snapshot:{content:{...q.snapshot.content,tasks:[{...q.snapshot.content.tasks[0],amount_minor:160000},...q.snapshot.content.tasks.slice(1)]},totals:calculateEstimate(
++  snapshot:{content:{...q.snapshot.content,tasks:[{...q.snapshot.content.tasks[0]!,amount_minor:160000},...q.snapshot.content.tasks.slice(1)]},totals:calculateEstimate(
+    [{amount_minor:160000},{amount_minor:50000},{amount_minor:100000}],q.snapshot.content.charges,800)}};
+  expect(quoteChanges(r,q)).toContain('task lines');
+  expect(quoteChanges(q,q)).toBe('Same estimate content');
+--- baseline/src/features/estimates/__tests__/ProjectEstimateSection.test.tsx
++++ src/features/estimates/__tests__/ProjectEstimateSection.test.tsx
+@@ -58,7 +58,7 @@
+   await waitFor(() => expect(editAdditionalCharge).toHaveBeenCalledWith('a', 'p', 'c', 'Permit', '151.01'));
+   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+   fireEvent.press(screen.getByLabelText('Remove charge Permit'));
+-  const options = alert.mock.calls[0][2] as { text: string; onPress?: () => void }[];
++  const options = alert.mock.calls[0]![2]! as { text: string; onPress?: () => void }[];
+   expect(removeAdditionalCharge).not.toHaveBeenCalled();
+   options.find((a) => a.text === 'Remove')?.onPress?.();
+   await waitFor(() => expect(removeAdditionalCharge).toHaveBeenCalledWith('a', 'p', 'c'));
+--- baseline/src/features/estimates/__tests__/unsentEstimate.test.ts
++++ src/features/estimates/__tests__/unsentEstimate.test.ts
+@@ -26,14 +26,14 @@
+   expect(() => parseUnsentEstimate(null, 'a', 'p')).toThrow();
+   expect(() => parseUnsentEstimate(wrap(content, 'wrong'), 'a', 'p')).toThrow();
+   expect(() => parseUnsentEstimate(wrap(), 'b', 'p')).toThrow();
+-  expect(() => parseUnsentEstimate(wrap({ ...content, tasks: [{ ...content.tasks[0], amount_minor: 0.01 }] }), 'a', 'p')).toThrow();
++  expect(() => parseUnsentEstimate(wrap({ ...content, tasks: [{ ...content.tasks[0]!, amount_minor: 0.01 }] }), 'a', 'p')).toThrow();
+   expect(() => parseUnsentEstimate(wrap({ ...content, tax_bps: 3001 }), 'a', 'p')).toThrow();
+ });
+ test('empty pricing, zero tax, half-up boundary and allowed closed read', () => {
+   const empty = parseUnsentEstimate(wrap({ ...content, tasks: [], charges: [], tax_bps: 0 }), 'a', 'p');
+   expect(empty.totals.finalMinor).toBe(0);
+   const small = parseUnsentEstimate(wrap({ ...content, tasks: [
+-    { ...content.tasks[0], amount_minor: 1 }, { ...content.tasks[1], amount_minor: 1 }], charges: [], tax_bps: 2500,
++    { ...content.tasks[0]!, amount_minor: 1 }, { ...content.tasks[1]!, amount_minor: 1 }], charges: [], tax_bps: 2500,
+     status: 'won' }), 'a', 'p');
+   expect(small.totals.taxMinor).toBe(1);
+ });
+--- baseline/src/features/estimates/__tests__/estimatesApi.test.ts
++++ src/features/estimates/__tests__/estimatesApi.test.ts
+@@ -56,7 +56,7 @@
+     }
+     const source = table === 'projects' ? [{ ...parent, status }] : table === 'project_tasks' ? tasks : charges;
+     const rows = source.filter(match);
+-    return { data: one ? rows[0] ?? null : rows.slice(first, last + 1), error: null };
++    return { data: one ? rows[0]! ?? null : rows.slice(first, last + 1), error: null };
+   }
+   return q;
+ });
+@@ -71,7 +71,7 @@
+ test('reads saved project-specific task and charge lines and computes exact acceptance total', async () => {
+   const result = await loadWorkingEstimate(A, P);
+   expect(result.totals.finalMinor).toBe(340200);
+-  expect(result.charges[0].description).toBe('Permit');
++  expect(result.charges[0]!.description).toBe('Permit');
+   expect(from).toHaveBeenCalledWith('project_additional_charges');
+ });
+ test('add/edit/remove charge updates only its owner/project and refreshes totals', async () => {
+--- baseline/src/features/notifications/__tests__/notificationLifecycle.test.ts
++++ src/features/notifications/__tests__/notificationLifecycle.test.ts
+@@ -45,7 +45,7 @@
+ 
+ test('one-shot UTC alert, persisted registry, no private payload; repeat is idempotent', async () => {
+   const h = harness(); expect((await run(h)).scheduled).toBe(1);
+-  expect(h.entries).toHaveLength(1); expect(h.entries[0].dueMs).toBe(Date.parse(DUE));
++  expect(h.entries).toHaveLength(1); expect(h.entries[0]!.dueMs).toBe(Date.parse(DUE));
+   expect(JSON.stringify(h.pending)).not.toContain('PRIVATE');
+   expect((await run(h)).scheduled).toBe(0); expect(h.pending).toHaveLength(1);
+ });
+@@ -53,7 +53,7 @@
+   const h = harness(); await run(h);
+   const revised = new Date(Date.now() + 172800000).toISOString(); h.setRows([make(A, 'open', revised)]);
+   expect((await run(h)).cancelled).toBe(1); expect(h.pending).toHaveLength(1);
+-  expect(h.entries[0].dueMs).toBe(Date.parse(revised));
++  expect(h.entries[0]!.dueMs).toBe(Date.parse(revised));
+ });
+ test('completed and deleted remove native alert, reopened future restores, overdue does not', async () => {
+   const h = harness(); await run(h); h.setRows([make(A, 'completed')]);
+@@ -77,7 +77,7 @@
+   expect((await run(h)).scheduled).toBe(1); expect(h.entries).toHaveLength(1);
+ });
+ test('native orphan, duplicates and unrelated app schedules: only SiteQuote duplicates removed', async () => {
+-  const h = harness(); await run(h); const first = h.pending[0];
++  const h = harness(); await run(h); const first = h.pending[0]!;
+   h.setPending([first, { ...first, identifier: 'dup' }, {
+     identifier: 'other-app', content: { title: 'Other application', body: 'Other', data: { type: 'reminder', reminderId: R } }
+   }]);
+@@ -94,7 +94,7 @@
+ test('owner change, signed-out cleanup, and no other account owner rows', async () => {
+   const h = harness(); await run(h); await h.service.signOut(A);
+   expect(h.pending).toHaveLength(0); h.setRows([make(B)]); h.service.activate(B); await run(h, B);
+-  expect(h.entries[0].ownerId).toBe(B); expect(h.pending).toHaveLength(1);
++  expect(h.entries[0]!.ownerId).toBe(B); expect(h.pending).toHaveLength(1);
+   expect((await run(h, A)).scheduled).toBe(0);
+ });
+ test('late native schedule after scope revocation is canceled', async () => {
+@@ -136,7 +136,7 @@
+   const first = run(h);
+   h.setRows([make(A,'open',new Date(Date.now()+259200000).toISOString())]);
+   const second = run(h); await Promise.all([first, second]);
+-  expect(h.pending).toHaveLength(1); expect(h.entries[0].dueMs).toBe((h.pending[0].trigger as {timestamp:number}).timestamp);
++  expect(h.pending).toHaveLength(1); expect(h.entries[0]!.dueMs).toBe((h.pending[0]!.trigger as {timestamp:number}).timestamp);
+ });
+ test('native cancel success without removal never creates competing replacement', async () => {
+   const h = harness(); await run(h);
+--- baseline/src/features/notifications/__tests__/notificationRegistry.test.ts
++++ src/features/notifications/__tests__/notificationRegistry.test.ts
+@@ -3,24 +3,24 @@
+ const A = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ const B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ const R = '11111111-1111-4111-8111-111111111111';
+-let saved: Record<string,string> = {};
++let mockSaved: Record<string,string> = {};
+ jest.mock('expo-sqlite/kv-store', () => ({ __esModule: true, default: {
+-  getItem: jest.fn(async (key: string) => saved[key] ?? null),
+-  setItem: jest.fn(async (key: string, value: string) => { saved[key] = value; })
++  getItem: jest.fn(async (key: string) => mockSaved[key] ?? null),
++  setItem: jest.fn(async (key: string, value: string) => { mockSaved[key] = value; })
+ }}));
+-beforeEach(() => { saved = {}; jest.clearAllMocks(); });
++beforeEach(() => { mockSaved = {}; jest.clearAllMocks(); });
+ test('writes opaque per-account state without customer or session data', async () => {
+   const entries = [{ ownerId: A, reminderId: R, nativeId: 'os-1', dueMs: 1999999999999 },
+     { ownerId: B, reminderId: R, nativeId: 'os-2', dueMs: 1999999999999 }];
+   await notificationRegistry.write(entries);
+   expect(await notificationRegistry.read()).toEqual(entries);
+-  expect(JSON.stringify(saved)).not.toContain('customer_name');
++  expect(JSON.stringify(mockSaved)).not.toContain('customer_name');
+   expect(Storage.setItem).toHaveBeenCalledTimes(1);
+ });
+ test('rejects invalid journal type and ignores malformed entries', async () => {
+-  saved['sitequote:local-reminder-notifications:v1'] = '{}';
++  mockSaved['sitequote:local-reminder-notifications:v1'] = '{}';
+   await expect(notificationRegistry.read()).rejects.toThrow('damaged');
+-  saved['sitequote:local-reminder-notifications:v1'] = JSON.stringify([
++  mockSaved['sitequote:local-reminder-notifications:v1'] = JSON.stringify([
+     { ownerId:'not-an-owner',reminderId:R,nativeId:'x',dueMs:100 },
+     { ownerId:A,reminderId:R,nativeId:'valid',dueMs:200 }
+   ]);
+--- baseline/src/features/reminders/__tests__/phase5cReminderRecovery.test.ts
++++ src/features/reminders/__tests__/phase5cReminderRecovery.test.ts
+@@ -23,7 +23,7 @@
+ function query() {
+   let op: 'read' | 'update' | 'delete' = 'read';
+   let status: Reminder['status'] = 'open';
+-  const builder = {
++  const builder: Record<'select' | 'eq' | 'update' | 'delete' | 'maybeSingle', jest.Mock> = {
+     select: jest.fn(() => builder),
+     eq: jest.fn(() => builder),
+     update: jest.fn((values: { status: Reminder['status'] }) => { op = 'update'; status = values.status; return builder; }),
+@@ -75,6 +75,6 @@
+   expect(deleteCount).toBe(1);
+ });
+ test('foreign owner rejected without issuing a DELETE', async () => {
+-  await expect(deleteReminder(owner, { ...reminder, user_id: 'another-account' })).rejects.toMatchObject({ reason: 'not_found' });
++  expect(() => deleteReminder(owner, { ...reminder, user_id: 'another-account' })).toThrow('not_found');
+   expect(deleteCount).toBe(0);
+ });
+--- baseline/src/features/reminders/__tests__/remindersApi.test.ts
++++ src/features/reminders/__tests__/remindersApi.test.ts
+@@ -9,7 +9,7 @@
+ const row: Reminder = { id:'rem-1', user_id:account, lead_id:'lead-a',project_id:'project-a',kind:'other',
+   title:'Follow up',note:null,due_at:'2099-01-02T10:00:00Z',status:'open',completed_at:null,
+   created_at:'2026-10-23T10:00:00Z',updated_at:'2026-10-23T10:00:00Z' };
+-const mocks = { leads: [{id: 'lead-a'}], projects: [{id:'project-a',lead_id:'lead-a'}], reminders: [row] };
++const mocks = { leads: [{id: 'lead-a', user_id: account}], projects: [{id:'project-a',lead_id:'lead-a', user_id: account}], reminders: [row] };
+ function selectQuery(table: 'leads'|'projects'|'reminders') {
+   const filters: Record<string,unknown> = {};
+   const query: any = {
+--- baseline/src/features/reminders/__tests__/phase4bHistory.test.ts
++++ src/features/reminders/__tests__/phase4bHistory.test.ts
+@@ -13,9 +13,9 @@
+ const events = [event('a', 'completed', '2026-10-23T10:00:00Z'),
+   event('b', 'reopened', '2026-10-24T10:00:00Z'), event('c', 'completed', '2026-10-25T10:00:00Z')];
+ it('keeps every completion/reopen in chronological local-display order', () => {
+-  expect(sortCompletionHistory([events[2], events[0], events[1]]).map((item) => item.event_type))
++  expect(sortCompletionHistory([events[2]!, events[0]!, events[1]!]).map((item) => item.event_type))
+     .toEqual(['completed', 'reopened', 'completed']);
+-  expect(sortCompletionHistory([events[2], events[0], events[1]]).map((item) => item.id))
++  expect(sortCompletionHistory([events[2]!, events[0]!, events[1]!]).map((item) => item.id))
+     .toEqual(['a', 'b', 'c']);
+ });
+ it('grouping partitions local overdue/today/upcoming; completed sort newest first', () => {
+--- baseline/src/features/tasks/__tests__/tasksApi.test.ts
++++ src/features/tasks/__tests__/tasksApi.test.ts
+@@ -24,7 +24,7 @@
+   let dataToUpdate: Record<string, unknown> | undefined;
+   let deleting = false;
+   let start = 0; let end = 199;
+-  const q = {
++  const q: Record<'select' | 'eq' | 'order' | 'range' | 'maybeSingle' | 'single' | 'insert' | 'update' | 'delete', jest.Mock> = {
+     select: jest.fn((_columns: string) => q),
+     eq: jest.fn((field: string, value: unknown) => { conditions[field] = value; return q; }),
+     order: jest.fn((_column: string, _direction: unknown) => q),
+@@ -64,7 +64,7 @@
+       const index = records.findIndex(match);
+       if (index < 0) return { data: null, error: null };
+       const [removed] = records.splice(index, 1);
+-      return { data: { id: removed.id }, error: null };
++      return { data: { id: removed!.id }, error: null };
+     }
+     const matches = records.filter(match).sort((a, b) => a.id.localeCompare(b.id));
+     return { data: mode === 'one' ? matches[0] ?? null : matches.slice(start, end + 1), error: null };
+@@ -160,6 +160,17 @@
+   expect(deleteSavedPhoto).toHaveBeenCalledWith(A, attached);
+   expect(await listProjectTasks(A, 'p-a')).toHaveLength(0);
+ });
++
++test('SQ-QA-006: a network failure after client retirement reports the obsolete session', async () => {
++  let release!: () => void;
++  pending = new Promise<void>((resolve) => { release = resolve; });
++  const request = listProjectTasks(A, 'p-a');
++  await Promise.resolve(); await Promise.resolve();
++  offline = true;
++  isCurrent.mockReturnValue(false);
++  release();
++  await expect(request).rejects.toMatchObject({ reason: 'session' });
++});
+ test('failed photo deletion preserves task for explicit retry', async () => {
+   const row = await createTask(A, 'p-a', draft);
+   jest.mocked(listTaskPhotosForDeletion).mockResolvedValue([{ id: 'photo-1' } as never]);
+--- baseline/src/features/tasks/__tests__/TaskScreens.test.tsx
++++ src/features/tasks/__tests__/TaskScreens.test.tsx
+@@ -111,7 +111,7 @@
+   await waitFor(() => expect(screen.getByText('Remove Task')).toBeTruthy());
+   fireEvent.press(screen.getByText('Remove Task'));
+   expect(remove).not.toHaveBeenCalled();
+-  const buttons = alert.mock.calls[0][2]!;
++  const buttons = alert.mock.calls[0]![2]!;
+   expect(buttons).toHaveLength(2);
+   buttons[0]?.onPress?.();
+   expect(remove).not.toHaveBeenCalled();
+--- baseline/src/features/tasks/tasksApi.ts
++++ src/features/tasks/tasksApi.ts
+@@ -47,6 +47,7 @@
+     await ensureCurrent(auth, accountId);
+     return result;
+   } catch (error) {
++    if (!isCurrentSupabaseClient(auth.client)) throw new TaskFailure('session');
+     if (error instanceof TaskFailure) throw error;
+     if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23514') {
+       throw new TaskFailure('locked');
+--- baseline/src/features/dashboard/dashboardApi.ts
++++ src/features/dashboard/dashboardApi.ts
+@@ -25,7 +25,8 @@
+     const results = await Promise.allSettled(DASHBOARD_METRICS.map((key) => requests[key]));
+     const output: DashboardCounts = { ...EMPTY_COUNTS };
+     results.forEach((result, index) => {
+-      if (result.status === 'fulfilled') output[DASHBOARD_METRICS[index]] = result.value;
++      const metric = DASHBOARD_METRICS[index];
++      if (result.status === 'fulfilled' && metric) output[metric] = result.value;
+     });
+     return output;
+   });
+--- baseline/app/_layout.tsx
++++ app/_layout.tsx
+@@ -52,7 +52,7 @@
+ export default function RootLayout() {
+   return (
+     <SafeAreaProvider>
+-      <StatusBar style="dark" backgroundColor={colors.background} />
++      <StatusBar style="dark" />
+       <AuthFlowProvider><RootStack /><NotificationTapCoordinator /><NotificationLifecycleCoordinator /></AuthFlowProvider>
+     </SafeAreaProvider>
+   );
+--- baseline/tsconfig.json
++++ tsconfig.json
+@@ -2,6 +2,7 @@
+   "extends": "expo/tsconfig.base",
+   "compilerOptions": {
+     "strict": true,
++    "types": ["jest", "node"],
+     "noEmit": true,
+     "noUncheckedIndexedAccess": true,
+     "forceConsistentCasingInFileNames": true
+--- baseline/package.json
++++ package.json
+@@ -14,17 +14,22 @@
+     "smoke:otp": "node --env-file=.env scripts/smoke-email-otp.mjs"
+   },
+   "dependencies": {
++    "@react-native-community/datetimepicker": "9.1.0",
+     "@supabase/supabase-js": "^2.117.1",
+     "expo": "~56.0.21",
++    "expo-asset": "~56.0.25",
+     "expo-constants": "~56.0.27",
+     "expo-crypto": "~56.0.5",
+     "expo-file-system": "~56.0.11",
++    "expo-font": "~56.0.7",
+     "expo-image-manipulator": "~56.0.26",
+     "expo-image-picker": "~56.0.25",
+     "expo-linking": "~56.0.18",
++    "expo-notifications": "~56.0.25",
+     "expo-print": "~56.0.4",
+     "expo-router": "~56.2.20",
+     "expo-secure-store": "~56.0.4",
++    "expo-sharing": "~56.0.27",
+     "expo-sqlite": "~56.0.6",
+     "expo-status-bar": "~56.0.4",
+     "react": "19.2.3",
+@@ -34,10 +39,7 @@
+     "react-native-safe-area-context": "~5.7.0",
+     "react-native-screens": "~4.26.0",
+     "react-native-url-polyfill": "^3.0.0",
+-    "react-native-worklets": "^0.8.3",
+-    "expo-sharing": "~56.0.26",
+-    "@react-native-community/datetimepicker": "9.1.0",
+-    "expo-notifications": "~56.0.25"
++    "react-native-worklets": "^0.8.3"
+   },
+   "devDependencies": {
+     "@testing-library/react-native": "^13.3.0",
+--- baseline/app.json
++++ app.json
+@@ -10,7 +10,6 @@
+       "supportsTablet": false
+     },
+     "android": {
+-      "edgeToEdgeEnabled": true,
+       "permissions": [
+         "android.permission.POST_NOTIFICATIONS"
+       ]
+@@ -32,7 +31,10 @@
+           "microphonePermission": false
+         }
+       ],
+-      "expo-notifications"
++      "expo-notifications",
++      "expo-sharing",
++      "expo-font",
++      "expo-asset"
+     ]
+   }
+ }
+--- baseline/scripts/verify-phase4e-isolated.cjs
++++ scripts/verify-phase4e-isolated.cjs
+@@ -31,7 +31,7 @@
+     const actualLoad = Module._load;
+     const kv = new Map();
+     Module._load = function(id, parent, main) {
+-      if (id === 'expo-sqlite/kv-store') return { default: {
++      if (id === 'expo-sqlite/kv-store') return { __esModule: true, default: {
+         getItem: async (key) => kv.get(key) ?? null,
+         setItem: async (key, value) => { kv.set(key, value); }
+       } };
+--- baseline/scripts/verify-phase3e-isolated.cjs
++++ scripts/verify-phase3e-isolated.cjs
+@@ -3,7 +3,7 @@
+ const fs = require('node:fs');
+ const Module = require('node:module');
+ const path = require('node:path');
+-const ts = require(path.join(require('node:child_process').execFileSync('npm',['root','-g'],{encoding:'utf8'}).trim(),'typescript'));
++const ts = require('typescript');
+ const previous = Module._extensions['.ts'];
+ Module._extensions['.ts'] = function (mod, file) { mod._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),
+   {fileName:file,compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,file); };
+--- baseline/scripts/verify-phase4c-isolated.cjs
++++ scripts/verify-phase4c-isolated.cjs
+@@ -2,7 +2,7 @@
+ const assert = require('node:assert/strict');
+ const fs = require('node:fs');
+ const Module = require('node:module');
+-const ts = require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript');
++const ts = require('typescript');
+ const file = require.resolve('../src/features/notifications/reminderNotificationModel.ts');
+ const js = ts.transpileModule(fs.readFileSync(file,'utf8'), { fileName:file,
+   compilerOptions: { module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022 } }).outputText;
+--- baseline/scripts/verify-phase4f-isolated.cjs
++++ scripts/verify-phase4f-isolated.cjs
+@@ -1,5 +1,7 @@
+ /** Executable Phase 4F checks against real transpiled source; mocked DB/auth.
+  * This is not Jest, PostgreSQL, Expo Router or native OS acceptance. */
++// Fixed test zone makes both DST cases execute on every host.
++process.env.TZ = 'America/New_York';
+ const assert = require('node:assert/strict');
+ const fs = require('node:fs');
+ const path = require('node:path');
+@@ -28,20 +30,18 @@
+  const result=reminderModel.validateReminder(draft,now);assert.equal(result.ok,true);assert.equal(result.values.due_at,due.toISOString());
+ });
+ test('Local midnight date boundary advances calendar month',()=>{
+- const {due}=model.suggestFollowup('2026-10-30T23:45:00Z',new Date('2026-10-30T23:00:00Z'));
++ const {due}=model.suggestFollowup(new Date(2026,9,30,23,45).toISOString(),new Date(2026,9,30,23,0));
+  assert.equal(due.getMonth(),10);assert.equal(due.getDate(),2);
+ });
+ test('Expired or invalid suggestion cannot be submitted silently',()=>{
+  assert.throws(()=>model.suggestFollowup('bad'));assert.throws(()=>model.suggestFollowup('2020-01-01Z',new Date('2026-10-23Z')));
+ });
+ test('DST spring-forward gap advances to first valid 3:00 AM',()=>{
+- if(process.env.TZ!=='America/New_York')return;
+  const {due,adjusted}=model.suggestFollowup('2026-03-05T07:30:00Z',new Date('2026-03-05T07:30:00Z'));
+  assert.equal(due.getFullYear(),2026);assert.equal(due.getMonth(),2);assert.equal(due.getDate(),8);
+  assert.equal(due.getHours(),3);assert.equal(due.getMinutes(),0);assert.equal(adjusted,true);
+ });
+ test('DST fall-back overlap stays at intended local 1:30 AM',()=>{
+- if(process.env.TZ!=='America/New_York')return;
+  const {due,ambiguous}=model.suggestFollowup('2026-10-29T05:30:00Z',new Date('2026-10-29T05:30:00Z'));
+  assert.equal(due.getDate(),1);assert.equal(due.getMonth(),10);assert.equal(due.getHours(),1);assert.equal(due.getMinutes(),30);assert.equal(ambiguous,true);
+ });

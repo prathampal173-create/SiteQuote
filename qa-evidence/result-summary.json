@@ -1,0 +1,77 @@
+{
+  "counting_unit": "One named automated assertion, one SQL fixture, one live assertion group, or one pending complete-procedure/platform slot. Coverage aliases are not counted twice. Source and isolated suites overlap in behavior. Build/preflight commands are separate.",
+  "areas": {
+    "Photo functionality (2A\u20132C)": {
+      "PASS": 61,
+      "FAIL": 1,
+      "BLOCKED": 1,
+      "NOT EXECUTED": 14
+    },
+    "Estimates/quotes (3A\u20133E)": {
+      "PASS": 169,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT EXECUTED": 20
+    },
+    "Reminders/notifications (4A\u20134F)": {
+      "PASS": 165,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT EXECUTED": 29
+    },
+    "Dashboard (5A)": {
+      "PASS": 31,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT EXECUTED": 3
+    },
+    "Main walkthrough (5B)": {
+      "PASS": 244,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT EXECUTED": 44
+    },
+    "Failure recovery (5C)": {
+      "PASS": 26,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT EXECUTED": 57
+    },
+    "Advanced acceptance (5D)": {
+      "PASS": 41,
+      "FAIL": 0,
+      "BLOCKED": 5,
+      "NOT EXECUTED": 14
+    },
+    "Supabase security": {
+      "PASS": 49,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT EXECUTED": 15
+    },
+    "Android native": {
+      "PASS": 0,
+      "FAIL": 0,
+      "BLOCKED": 186,
+      "NOT EXECUTED": 0
+    },
+    "iOS native": {
+      "PASS": 0,
+      "FAIL": 0,
+      "BLOCKED": 186,
+      "NOT EXECUTED": 0
+    }
+  },
+  "totals": {
+    "PASS": 786,
+    "FAIL": 1,
+    "NOT EXECUTED": 196,
+    "BLOCKED": 378
+  },
+  "functional_executed": 787,
+  "jest": 454,
+  "isolated": 278,
+  "sql_fixtures": 18,
+  "live": 37,
+  "requested_cases": 201
+}

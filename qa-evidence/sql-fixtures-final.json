@@ -1,0 +1,110 @@
+[
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_0B2_foundation.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_0B2_foundation-final.log",
+    "duration_seconds": 0.36
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_0B3_isolation.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_0B3_isolation-final.log",
+    "duration_seconds": 0.17
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_0B4_storage.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_0B4_storage-final.log",
+    "duration_seconds": 0.18
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1A_manual_activities.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_1A_manual_activities-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1B_project_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_1B_project_security-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1C_tasks_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_1C_tasks_security-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_1D_project_decisions_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_1D_project_decisions_security-final.log",
+    "duration_seconds": 0.17
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_2b_photo_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_2b_photo_security-final.log",
+    "duration_seconds": 0.09
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_2c_photo_deletion_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_2c_photo_deletion_security-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3a_estimate_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_3a_estimate_security-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3b_unsent_snapshot_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_3b_unsent_snapshot_security-final.log",
+    "duration_seconds": 0.11
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3c_prepared_quote_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_3c_prepared_quote_security-final.log",
+    "duration_seconds": 0.12
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_3e_status_workflows_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_3e_status_workflows_security-final.log",
+    "duration_seconds": 0.11
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4a_reminders_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_4a_reminders_security-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4b_completion_history_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_4b_completion_history_security-final.log",
+    "duration_seconds": 0.1
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4d_site_visit_stage_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_4d_site_visit_stage_security-final.log",
+    "duration_seconds": 0.12
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_4f_followup_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_4f_followup_security-final.log",
+    "duration_seconds": 0.14
+  },
+  {
+    "command": "docker exec -i supabase_db_sitequote psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/phase_5d_advanced_versions_security.sql",
+    "exit_code": 0,
+    "log": "qa-evidence/phase_5d_advanced_versions_security-final.log",
+    "duration_seconds": 0.13
+  }
+]

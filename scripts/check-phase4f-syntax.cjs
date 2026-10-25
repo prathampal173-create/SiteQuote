@@ -1,0 +1,5 @@
+const fs=require('fs'),path=require('path'),ts=require('typescript');let c=0,bad=[];
+function scan(dir){for(const file of fs.readdirSync(dir)){const p=path.join(dir,file),s=fs.statSync(p);if(s.isDirectory())scan(p);else if(/\.tsx?$/.test(file)){
+const src=fs.readFileSync(p,'utf8');const output=ts.transpileModule(src,{fileName:p,reportDiagnostics:true,compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});
+const errors=(output.diagnostics||[]).filter(d=>d.category===ts.DiagnosticCategory.Error); if(errors.length)bad.push([p,errors.map(x=>ts.flattenDiagnosticMessageText(x.messageText,' '))]);c++;
+}}}scan('src');scan('app');console.log('Syntax transpilation '+c+' TS/TSX files',bad.length?'FAIL':'PASS');if(bad.length){console.error(bad);process.exitCode=1;}

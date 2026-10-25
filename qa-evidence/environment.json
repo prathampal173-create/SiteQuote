@@ -1,0 +1,102 @@
+{
+  "captured_at": "2026-10-24T01:31:53.522053+00:00",
+  "os": "macOS-26.5.1-arm64-arm-64bit",
+  "timezone": "Asia/Kolkata",
+  "app_version": "0.1.0",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "v26.7.0\n"
+    },
+    {
+      "command": [
+        "npm",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "11.19.0\n"
+    },
+    {
+      "command": [
+        "docker",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "Docker version 29.4.3, build 055a478\n"
+    },
+    {
+      "command": [
+        "xcode-select",
+        "-p"
+      ],
+      "exit_code": 0,
+      "output": "/Library/Developer/CommandLineTools\n"
+    },
+    {
+      "command": [
+        "xcrun",
+        "simctl",
+        "list",
+        "devices"
+      ],
+      "exit_code": 72,
+      "output": "xcrun: error: unable to find utility \"simctl\", not a developer tool or in PATH\n"
+    },
+    {
+      "command": [
+        "which",
+        "adb"
+      ],
+      "exit_code": 1,
+      "output": ""
+    },
+    {
+      "command": [
+        "npx",
+        "--yes",
+        "supabase",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "2.122.0\n"
+    },
+    {
+      "command": [
+        "docker",
+        "exec",
+        "supabase_db_sitequote",
+        "psql",
+        "-X",
+        "-U",
+        "postgres",
+        "-d",
+        "postgres",
+        "-Atc",
+        "select version(); select version from supabase_migrations.schema_migrations order by version;"
+      ],
+      "exit_code": 0,
+      "output": "PostgreSQL 17.11 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit\n20261022000000\n20261022010000\n20261022020000\n20261022030000\n20261022040000\n20261022050000\n20261022060000\n20261023000000\n20261023010000\n20261023020000\n20261023030000\n20261023040000\n20261023050000\n20261023060000\n20261023070000\n20261023080000\n20261023090000\n20261023100000\n20261023110000\n"
+    },
+    {
+      "command": [
+        "docker",
+        "exec",
+        "supabase_db_sitequote",
+        "psql",
+        "-X",
+        "-U",
+        "postgres",
+        "-d",
+        "postgres",
+        "-Atc",
+        "select schemaname,tablename,rowsecurity from pg_tables where schemaname='public'; select id,public,file_size_limit,allowed_mime_types from storage.buckets;"
+      ],
+      "exit_code": 0,
+      "output": "public|business_profiles|t\npublic|leads|t\npublic|projects|t\npublic|project_additional_charges|t\npublic|project_photos|t\npublic|project_tasks|t\npublic|activities|t\npublic|reminder_completion_events|t\npublic|reminders|t\npublic|quote_prepare_requests|t\npublic|quotes|t\nproject-site-photos|f|10485760|{image/jpeg}\n"
+    }
+  ]
+}

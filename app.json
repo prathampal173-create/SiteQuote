@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "SiteQuote",
+    "slug": "sitequote",
+    "scheme": "sitequote",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true
+        }
+      ],
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow SiteQuote to take photos for projects and tasks.",
+          "photosPermission": "Allow SiteQuote to select project and task photos from your library.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-notifications",
+      "expo-sharing",
+      "expo-font",
+      "expo-asset"
+    ]
+  }
+}

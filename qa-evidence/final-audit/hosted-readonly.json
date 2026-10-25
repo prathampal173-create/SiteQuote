@@ -1,0 +1,69 @@
+[
+  {
+    "check": "auth-settings",
+    "status": 200,
+    "emailEnabled": true,
+    "autoconfirm": false,
+    "signupDisabled": false
+  },
+  {
+    "check": "anonymous-read-business_profiles",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "check": "anonymous-read-leads",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "check": "anonymous-read-projects",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "check": "anonymous-read-project_tasks",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-project_additional_charges",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-project_photos",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-quotes",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-quote_prepare_requests",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-reminders",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-reminder_completion_events",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-read-activities",
+    "status": 404,
+    "code": "PGRST205"
+  },
+  {
+    "check": "anonymous-buckets",
+    "status": 200,
+    "returnedRows": 0
+  }
+]
